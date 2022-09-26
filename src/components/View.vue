@@ -1,0 +1,1245 @@
+<template>
+	<Toast />
+	<Toast position="bottom-right" group="br" />
+	<ConfirmDialog/>
+	<div class="grid">
+		<div class="col-12">
+			<div class="card">
+				<h5 class="flex p-1">Manage Fleet Tech</h5>
+				<DataTable id="dt" ref="dt" stripedRows :value="products" :loading="loading" editMode="cell" :class="tableClass" v-model:filters="filters"
+				v-model:selection="selectedProducts" :metaKeySelection="false" :paginator="true" :rows="10" :rowsPerPageOptions="[10,25,50, products.length]"
+				paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+				responsiveLayout="scroll" :filterDisplay="filterDisplayValue" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} ships" >
+					<template #header>
+						<div class="flex align-items-center">
+							<span class="p-input-icon-left flex align-items-center">
+								<i class="pi pi-search" />
+								<InputText style="maxWidth: 14rem" v-model="filters['global'].value" placeholder="Keyword Search" />
+							</span>
+							<Button label="Edit" icon="pi pi-pencil" class="p-button-danger" @click="confirmChangeSelected" :disabled="!selectedProducts || !selectedProducts.length" style="margin-left: 0.4rem;" />
+							<span class="ml-auto done" v-tooltip.top="'Counting ships that contribute to fleet tech'">{{percent}}/{{filterLength}} done</span>
+							<SplitButton label="Clear" icon="pi pi-filter-slash" @click="clearFilter()" :model="items" class="p-button-warning p-1" />
+						</div>
+					</template>
+					<Column selectionMode="multiple" style="width: 3rem" />
+					<Column field="_code" header="Id" :sortable="true" />
+					<Column field="en" header="Name" :sortable="true"> <!-- I was banned from wiki for generating links to ships -->
+						<template #filter>
+							<InputText type="text" v-model="filters['en'].value" class="p-column-filter" :placeholder="`Search by name - `" style="min-width: 9rem;" />
+						</template>
+					</Column>
+					<Column field="hullType" header="Type" :showFilterMenu="false" :sortable="true" style="min-width:12rem">
+						<template #filter="{filterModel,filterCallback}">
+							<MultiSelect v-model="filterModel.value" @change="filterCallback()" :options="types" placeholder="Any">
+								<template #option="slotProps">
+									<span>{{slotProps.option}}</span>
+								</template>
+							</MultiSelect>
+						</template>
+					</Column>
+					<Column field="rarity" header="Rarity" :showFilterMenu="false" :sortable="true" style="min-width:12rem">
+						<template #body="slotProps">
+							<span :class="' product-badge status-' + (slotProps.data.rarity ? slotProps.data.rarity.toLowerCase() : '')">{{slotProps.data.rarity}}</span>
+						</template>
+						<template #filter="{filterModel,filterCallback}">
+							<MultiSelect v-model="filterModel.value" @change="filterCallback()" :options="rarities" placeholder="Any">
+								<template #option="slotProps">
+									<span :class="'product-badge status-' + slotProps.option.toLowerCase()">{{slotProps.option}}</span>
+								</template>
+							</MultiSelect>
+						</template>
+					</Column>
+					<Column field="nationality" header="Affiliation" filterField="nationality" :showFilterMenu="false" :showFilterMatchModes="false" :sortable="true">
+						<template #body="{data}">
+							<span>{{data.nationality}}</span>
+						</template>
+						<template #filter="{filterModel,filterCallback}">
+							<MultiSelect v-model="filterModel.value" @change="filterCallback()" :options="affiliations" placeholder="Any">
+								<template #option="slotProps">
+									<span>{{slotProps.option}}</span>
+								</template>
+							</MultiSelect>
+						</template>
+					</Column>
+					<Column :hidden="collHidden" header="Collection" filterField="collectionStat">
+						<template #body="{data}">
+							<div class="flex align-items-center">
+								<span class="image-text">{{data.collectionBonus}}</span>
+								<img :src="'images/icons/' + data.collectionStat + '.png'" :title="data.collectionStat" @click="showTech('collectionStat', data.collectionStat)" :style="(data.collectionApplicable ? '' : 'display: none;')" />
+								<span v-for="item of getBody(data.collectionApplicable)" :key='item'>
+									<img :src="'images/icons/' + item + '.png'" :title="item" @click="showTech('collectionApplicable', item)" style="height: 2.1rem" />
+								</span>
+							</div>
+						</template>
+					</Column>
+					<Column header="Max level" filterField="maxLevelApplicable">
+						<template #body="{data}">
+							<div class="flex align-items-center">
+								<span class="image-text">{{data.maxLevelBonus}}</span>
+								<img :src="'images/icons/' + data.maxLevelStat + '.png'" :title="data.maxLevelStat" @click="showTech('maxLevelStat', data.maxLevelStat)" :style="(data.collectionApplicable ? '' : 'display: none;')" />
+								<span v-for="item of getBody(data.maxLevelApplicable)" :key='item'>
+									<img :src="'images/icons/' + item + '.png'" :title="item" @click="showTech('maxLevelApplicable', item)" style="height: 2.1rem" />
+								</span>
+							</div>
+						</template>
+					</Column>
+					<Column v-for="col of columns" :field="col.field" :header="col.header" :key="col.field" dataType="numeric" sortable filterField="level">
+						<template #body="slotProps">
+							<span :class="levelClass(slotProps.data)">
+								{{slotProps.data.level}}
+							</span>
+						</template>
+						<template #editor="{ data, field }">
+							<InputText @change="saveCats(data[field], data._code)" v-model="data[field]" />
+						</template>
+						<template #filter="{filterModel}">
+							<Dropdown v-model="filterModel.value" @change="filterLevels(filterModel.value.min, filterModel.value.max)" :options="levelFilters" placeholder="Any">
+								<template #option="slotProps">
+									<span>{{slotProps.option.field}}</span>
+								</template>
+							</Dropdown>
+						</template>
+					</Column>
+				</DataTable>
+			</div>
+		</div>
+		<div class="col-12 xl:col-8">
+			<div class="card">
+				<h5>Recent Ships</h5>
+				<DataTable :loading="loadingRecent" editMode="cell" :value="products4" :rows="5" sortField="_code" :sortOrder="1" :paginator="true" responsiveLayout="scroll">
+					<Column field="en" header="Name" :sortable="true" />
+					<Column field="hullType" header="Type" :sortable="true" />
+					<Column field="rarity" header="Rarity" :sortable="true" style="width: 9rem;">
+						<template #body="slotProps">
+							<span :class="' product-badge status-' + (slotProps.data.rarity ? slotProps.data.rarity.toLowerCase() : '')">{{slotProps.data.rarity}}</span>
+						</template>
+					</Column>
+					<Column field="nationality" header="Affiliation" :sortable="true" />
+					<Column field="level" header="Level" :sortable="true" >
+						<template #body="slotProps">
+							<div :class="levelClass(slotProps.data)">
+								{{slotProps.data.level}}
+							</div>
+						</template>
+						<template #editor="{ data }">
+							<InputText @change="saveCats(data.level, data._code)" v-model="data.level" />
+						</template>
+					</Column>
+						<template #empty>
+							No new ships
+						</template>
+				</DataTable>
+			</div>
+
+			<div class="card">
+				<DataTable :value="exp" responsiveLayout="scroll">
+					<Column v-for="col of expColumns" :field="col.field" :key="col.field" :header="col.header"/>
+				</DataTable>
+			</div>
+		</div>
+		<div class="col-12 xl:col-4">
+			<div class="card">
+				<h5>Doughnut Chart</h5>
+				<div class="flex flex-column align-items-center">
+					<Chart ref="dghntChrt" type="doughnut" :data="chartData" :options="lightOptions" />
+				</div>
+			</div>
+		</div>
+		<div class="col-12 xl:col-6">
+			<Card class="card">
+				<template v-slot:title>
+					<div class="flex align-items-center justify-content-between mb-0">
+						<h5>Collection Tech Bonus</h5>
+						<Button icon="pi pi-plus" class="p-button-text" @click="changeReturnValue"/>
+					</div>
+				</template>
+				<template v-slot:content>
+					<div class="card">
+						<h5>{{returnValueLabel}}</h5>
+						<DataTable :value="products1" class="p-datatable-sm" stripedRows showGridlines responsiveLayout="scroll" >
+							<Column field="type" style="width:2rem;">
+								<template #body="{data}">
+									<img :src="'images/icons/' + data.type + '.png'" @click="showTech('collectionApplicable', data.type)" :title="data.type" class="table-img" />
+								</template>
+							</Column>
+							<Column v-for="col of techColumns" :field="col.field" :key="col.field" bodyStyle="text-align: center; padding: 0; margin: 0;" >
+								<template #header>
+									<img :src="'images/icons/' + col.header + '.png'" @click="showTech('collectionStat', col.header)" :title="col.header" class="table-img" />
+								</template>
+								<template #body="{data}">
+									{{returnData(data[col.header], returnValue)}}
+								</template>
+							</Column>
+						</DataTable>
+					</div>
+				</template>
+			</Card>
+		</div>
+		<div class="col-12 xl:col-6">
+			<Card class="card">
+				<template v-slot:title>
+					<div class="flex align-items-center justify-content-between mb-0">
+						<h5>Max Level Tech Bonus</h5>
+						<Button icon="pi pi-plus" class="p-button-text" @click="changeReturnValueMax"/>
+					</div>
+				</template>
+				<template v-slot:content>
+					<div class="card">
+						<h5>{{returnValueLabelMax}}</h5>
+						<DataTable :value="products2" class="p-datatable-sm" stripedRows showGridlines responsiveLayout="scroll" >
+							<Column field="type" style="width:2rem;">
+								<template #body="{data}">
+									<img :src="'images/icons/' + data.type + '.png'" @click="showTech('maxLevelApplicable', data.type)" :title="data.type" class="table-img" />
+								</template>
+							</Column>
+							<Column v-for="col of techColumns" :field="col.field" :key="col.field" bodyStyle="text-align: center; padding: 0; margin: 0;">
+								<template #header>
+									<img :src="'images/icons/' + col.header + '.png'" @click="showTech('maxLevelStat', col.header)" :title="col.header" class="table-img" />
+								</template>
+								<template #body="{data}" >
+									{{returnData(data[col.header], returnValueMax)}}
+								</template>
+							</Column>
+						</DataTable>
+					</div>
+				</template>
+			</Card>
+		</div>
+		<div class="col-12 lg:col-7">
+			<div class="card">
+				<h5 class="align-self-start">Bar Chart</h5>
+				<Chart ref="brChrt" type="bar" :data="basicData" :options="horizontalOptions" />
+			</div>
+			
+			<div class="card">
+				<h5>Import</h5>
+				<input style="display:none" type="file" accept=".csv" @change="onFileSelected" ref="fileInput">
+				<Button icon="pi pi-upload" label="Choose" @click="$refs.fileInput.click()" />
+				<h5>Export</h5>
+				<Button icon="pi pi-upload" label="Download" @click="CSVExport" />
+			</div>
+		</div>
+
+		<div class="col-12 lg:col-5">
+			<div class="card">
+				<h5 class="align-self-start">Radar Area Chart</h5>
+				<Chart ref="rdrChrt" type="radar" :data="normalData" :options="normalOptions" />
+			</div>
+		</div>
+
+	</div>
+
+	<Dialog v-model:visible="changeProductsDialog" :style="{width: '450px'}" header="Ship Details" :modal="true" class="p-fluid" @keydown.enter="changeSelectedProducts(confirmLevel)" @keydown.esc="changeProductsDialog = false">
+		<img src="https://www.primefaces.org/wp-content/uploads/2020/05/placeholder.png" :alt="product.image" class="product-image" v-if="product.image" />
+		<div class="field">
+			<label for="level">Level</label>
+			<InputText id="level" v-model.trim="confirmLevel" required="true" autofocus :class="{'p-invalid': submitted && !confirmLevel}" />
+			<small class="p-error" v-if="submitted && !confirmLevel">Number is required.</small>
+		</div>
+		<div class="confirmation-content">
+			<i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
+			<span v-if="product">Are you sure you want to change the selected ships?</span>
+		</div>
+		<template #footer>
+			<Button label="No" icon="pi pi-times" class="p-button-text" @click="changeProductsDialog = false" />
+			<Button label="Yes" icon="pi pi-check" class="p-button-text" @click="changeSelectedProducts(confirmLevel)" />
+		</template>
+	</Dialog>
+</template>
+
+<script>
+
+import ProductService from '../service/ProductService';
+import {FilterMatchMode, FilterOperator} from 'primevue/api';
+import EventBus from '../AppEventBus';
+
+export default {
+	data() {
+		return {
+			collHidden: null,
+			userSettings: {},
+			returnValueLabel: 'My ships',
+			returnValueLabelMax: 'My ships',
+			returnValue: 0,
+			returnValueMax: 0,
+			chartData: {},
+			normalData: {},
+			basicData: {},
+			filterLength: null,
+			exp: null,
+			shipgirls: null,
+			products: [],
+			product: {},
+			products1: null,
+			products2: null,
+			products3: [],
+			products4: [],
+			columns: null,
+			expColumns: null,
+			techColumns: null,
+			checked: true,
+			tableClass: "p-datatable-sm",
+			filterDisplayValue: 'row',
+			changeProductsDialog: false,
+			percent: null,
+			selectedProducts: null,
+			items: [
+				{
+					label: 'Update',
+					icon: 'pi pi-refresh',
+					command: () => {
+						this.updateData();
+					}
+				},
+				{
+					label: 'Show hidden ships',
+					icon: 'pi pi-plus',
+					command: () => {
+						this.changeMetas();
+					}
+				},
+				{
+					label: 'Hide collection',
+					icon: 'pi pi-minus',
+					command: () => {
+						this.changeColl(this.collHidden);
+					}
+				},
+				{
+					label: 'Change filter look',
+					icon: 'pi pi-filter',
+					command: () => {
+						this.changeFilterDisplay();
+					}
+				},
+				{
+					label: 'Change table look',
+					icon: 'pi pi-th-large',
+					command: () => {
+						this.changeTableDisplay();
+					}
+				},
+				{
+					label: 'Delete my data',
+					icon: 'pi pi-times',
+					command: () => {
+						this.clearData();
+					}
+				}
+			],
+			confirmLevel: null,
+			localStorage: null,
+			loading: false,
+			loadingRecent: false,
+			loadingColl: false,
+			loadingMax: false,
+			cats: {},
+			realData: [],
+			levelFilters: null,
+			filters: {
+				'global': {value: null, matchMode: FilterMatchMode.CONTAINS},
+				'en': {value: null, matchMode: FilterMatchMode.CONTAINS},
+				'rarity': {value: null, matchMode: FilterMatchMode.IN},
+				'hullType': {value: null, matchMode: FilterMatchMode.IN},
+				'nationality': {value: null, matchMode: FilterMatchMode.IN},
+				'collectionStat': {value: null, matchMode: FilterMatchMode.CONTAINS},
+				'collectionBonus': {value: null, matchMode: FilterMatchMode.CONTAINS},
+				'maxLevelApplicable': {value: null, matchMode: FilterMatchMode.CONTAINS},
+				'collectionApplicable': {value: null, matchMode: FilterMatchMode.CONTAINS},
+				'maxLevelBonus': {value: null, matchMode: FilterMatchMode.CONTAINS},
+				'maxLevelStat': {value: null, matchMode: FilterMatchMode.CONTAINS},
+				'level': {value: null, matchMode: FilterMatchMode.EQUALS}
+			},
+			types: [],
+			rarities: [],
+			affiliations: [],
+			labelColor: null,
+			lightOptions: {
+				plugins: {
+					legend: {
+						labels: {
+							color: this.label()
+						}
+					},
+					title: {
+						display: true,
+						text: 'Chart by levels',
+						color: this.label()
+					}
+				}
+			},
+			horizontalOptions: {
+				indexAxis: 'y',
+				plugins: {
+					legend: {
+						labels: {
+							color: this.label()
+						}
+					},
+					title: {
+						display: true,
+						text: 'Max level progress',
+						color: this.label()
+					}
+				},
+				scales: {
+					x: {
+						ticks: {
+							color: this.label()
+						},
+						grid: {
+							color: '#ebedef'
+						}
+					},
+					y: {
+						ticks: {
+							color: this.label()
+						},
+						grid: {
+							color: '#ebedef'
+						}
+					}
+				}
+			},
+			normalOptions: {
+				plugins: {
+					legend: {
+						labels: {
+							color: this.label()
+						}
+					},
+					tooltip: true,
+					title: {
+						display: true,
+						text: 'Tech bonus progress',
+						color: this.label()
+					}
+				},
+				scales: {
+					r: {
+						pointLabels: {
+							color: this.label(),
+							font: {
+								size: 12
+							}
+						},
+						grid: {
+							color: '#ebedef',
+						},
+						angleLines: {
+							color: '#ebedef'
+						}
+					}
+				},
+				elements: {
+					point: {
+						hoverRadius: 10,
+					}
+				}
+			}
+		}
+	},
+	productService: null,
+	created() {
+		this.productService = new ProductService();
+	},
+	themeChangeListener: null,
+	beforeUnmount() {
+		EventBus.off('theme-change', this.themeChangeListener);
+	},
+	mounted() {
+		this.themeChangeListener = () => {
+			this.refreshOptions()
+		};
+		EventBus.on('theme-change', this.themeChangeListener);
+		this.loading = true
+		this.loadingRecent = true
+		this.columns = [
+			{field: 'level', header: 'Level'}
+		];
+		this.techColumns = [
+			//{field: 'type', header: ''},
+			{field: 'health', header: 'health'},
+			{field: 'firepower', header: 'firepower'},
+			{field: 'aviation', header: 'aviation'},
+			{field: 'reload', header: 'reload'},
+			{field: 'accuracy', header: 'accuracy'},
+			{field: 'antiair', header: 'antiair'},
+			{field: 'torpedo', header: 'torpedo'},
+			{field: 'evasion', header: 'evasion'},
+			{field: 'antisubmarineWarfare', header: 'antisubmarineWarfare'},
+		];
+		this.expColumns = [
+			{field: 'type', header: 'EXP'},
+			{field: '100-105', header: '100→105'},
+			{field: '105-110', header: '105→110'},
+			{field: '110-115', header: '110→115'},
+			{field: '115-120', header: '115→120'},
+			{field: '100-120', header: '100→120'},
+			{field: '120-125', header: '120→125'}
+		];
+		this.levelFilters = [
+			{field: 'Collection', min: '0', max: '69'},
+			{field: 'Max limit break', min: '70', max: '100'},
+			{field: 'Is actively in progress', min: '101', max: '119'},
+			{field: 'Done', min: '120', max: '125'}
+		];
+		this.welcomeGuest();
+		this.productService.getProducts().then(data => {this.exp = data});
+		//this.productService.getShips().then(data => {this.shipgirls = data}); //json example
+		//this.productService.getProductsSmall().then(data => {
+		this.productService.getShips().then(data => { //delete this later
+			this.products = this.realData = data
+			this.verifyAllProducts()
+			this.afterImport()
+			this.checkData()
+			this.fetchData()
+			this.doSettings()
+			this.levels()
+		});
+		//this.productService.getNew().then(data => {
+		this.productService.getNewSmall().then(data => {
+			this.products3 = data
+			this.getNewShips()
+		});
+	},
+	methods: {
+		filterLevels(x, y){
+			this.filters['level'] = {operator: FilterOperator.AND, constraints: [{value: x, matchMode: FilterMatchMode.GREATER_THAN_OR_EQUAL_TO},{value: y, matchMode: FilterMatchMode.LESS_THAN_OR_EQUAL_TO}]}
+		},
+		setupColl(x){
+			this.collHidden = x
+		},
+		changeColl(){
+			this.collHidden = this.collHidden ? false : true
+			let retrievedUserSettings = JSON.parse(localStorage.getItem('userSettings'))
+			retrievedUserSettings.collHidden = this.collHidden
+			localStorage.setItem('userSettings', JSON.stringify(retrievedUserSettings));
+		},
+		refreshOptions(){
+			this.$refs.dghntChrt.options.plugins.legend.labels.color = 
+			this.$refs.dghntChrt.options.plugins.title.color =
+			this.$refs.brChrt.options.plugins.legend.labels.color =
+			this.$refs.brChrt.options.plugins.title.color = 
+			this.$refs.brChrt.options.scales.x.ticks.color = 
+			this.$refs.brChrt.options.scales.y.ticks.color = 
+			this.$refs.rdrChrt.options.plugins.legend.labels.color =
+			this.$refs.rdrChrt.options.scales.r.pointLabels.color = 
+			this.$refs.rdrChrt.options.plugins.title.color = 
+			this.label();
+			this.rerenderChart();
+		},
+		rerenderChart(){
+			this.$refs.dghntChrt.refresh();
+			this.$refs.brChrt.refresh();
+			this.$refs.rdrChrt.refresh();
+		},
+		label(){
+			if(localStorage.getItem('currentTheme') !== null){
+				return JSON.parse(localStorage.getItem('currentTheme')).dark ? '#ffffff' : '#495057'
+			} else {
+				return '#495057'
+			}
+		},
+		localstorage(){
+			return localStorage.getItem('retrievedObject') === null
+		},
+		getNewShips(){
+			let obj = this.localstorage() ? this.realData : this.makeData()
+			for (let j = 0; j < this.products3.length; j++) {
+				this.products4[j] = obj[this.findIndexById(this.products3[j].Code)]
+			}
+			this.loadingRecent = false
+		},
+		afterImport(){
+			if(localStorage.getItem('temp') !== null){
+				let arr = JSON.parse(localStorage.getItem('temp'))
+				let row = {}
+				let result = []
+				for (let i = 0; i < this.realData.length; i++) {
+					row = {}
+					let searchIndex = arr.findIndex((elem) => elem.name == this.realData[i].en);
+					row['id'] = this.realData[i]._code
+					row['name'] = this.realData[i].en
+					row['lvl'] = searchIndex > -1 ? arr[searchIndex].lvl : 0
+					result.push(row)
+				}
+				localStorage.setItem('lvls', JSON.stringify(result))
+				localStorage.removeItem('temp')
+			}
+		},
+		onFileSelected(event){
+			var fileReader = new FileReader();
+			fileReader.onload = function(event) {
+				var lines=event.target.result.split("\n");
+
+				var result = [];
+
+				for(var i = 1; i < lines.length; i++){
+
+					var obj = {};
+					var currentline = lines[i].split(",");
+
+					obj['id'] = currentline[0] - 0;
+					obj['name'] = currentline[10];
+					obj['lvl'] = currentline[11] - 0;
+
+					result.push(obj);
+
+				}
+				localStorage.setItem('temp', JSON.stringify(result))
+				localStorage.setItem("retrievedObject", JSON.stringify('true'));
+				location.reload();
+			}
+			var file = event.target.files[0];
+			fileReader.readAsText(file);
+		},
+		CSVExport(){
+			if(localStorage.getItem('retrievedObject') !== null){
+				let row = []
+				let rows = []
+				var ships = this.makeData()
+				rows.push(JSON.parse(JSON.stringify(Object.keys(ships[1]))))
+				for (let i = 0; i < ships.length; i++) {
+					row = []
+					Object.values(ships[i]).forEach(function(element){
+						row.push(JSON.stringify(element).replace(/,/g, "."))
+					})
+					rows.push(row)
+				}
+				this.exportToCsv('download', rows)
+			} else{
+				this.$toast.add({severity:'error', summary: 'Error Message', detail:'Nothing to export. Make changes to the table or refresh the page.', life: 3000});
+			}
+		},
+		exportToCsv(filename, rows) {
+			var processRow = function (row) {
+			var finalVal = '';
+			for (var j = 0; j < row.length; j++) {
+					var innerValue = row[j] === null ? '' : row[j].toString();
+					if (row[j] instanceof Date) {
+						innerValue = row[j].toLocaleString()
+					}
+					var result = innerValue.replace(/"/g, '').replace(/\\/g, '').replace('null', '');
+					if (result.search(/("|,|\n)/g) >= 0)
+						result = '"' + result + '"';
+					if (j > 0)
+						finalVal += ',';
+						finalVal += result;
+				}
+				return finalVal + '\n';
+			};
+
+			var csvFile = '';
+			for (var i = 0; i < rows.length-1; i++) {
+				csvFile += processRow(rows[i]);
+			}
+
+			var blob = new Blob([csvFile], { type: 'text/csv;charset=utf-8;' });
+			if (navigator.msSaveBlob) {
+				navigator.msSaveBlob(blob, filename);
+			} else {
+				var link = document.createElement("a");
+				if (link.download !== undefined) {
+					var url = URL.createObjectURL(blob);
+					link.setAttribute("href", url);
+					link.setAttribute("download", filename);
+					link.style.visibility = 'hidden';
+					document.body.appendChild(link);
+					link.click();
+					document.body.removeChild(link);
+				}
+			}
+		},
+		unpackUserSettings(){
+			let retrievedUserSettings = JSON.parse(localStorage.getItem('userSettings'))
+			this.filterDisplayValue = retrievedUserSettings.filterDisplayValue
+			this.tableClass = retrievedUserSettings.tableClass
+			this.checked = retrievedUserSettings.checked
+			this.setupColl(retrievedUserSettings.collHidden)
+		},
+		packUserSettings(){
+			this.userSettings.collHidden = this.collHidden
+			this.userSettings.filterDisplayValue = this.filterDisplayValue
+			this.userSettings.tableClass = this.tableClass
+			this.userSettings.checked = this.checked
+			localStorage.setItem('userSettings', JSON.stringify(this.userSettings));
+		},
+		sort(arr){
+			var ordered = Object.keys(arr).sort().reduce(
+				(obj, key) => { 
+					obj[key] = arr[key]; 
+					return obj;
+				}, 
+				{}
+			);
+			return ordered
+		},
+		returnData(data, val){
+			if(data !== null){
+				return data[val]
+			}
+			return null
+		},
+		changeReturnValue(){
+			this.returnValue = {
+				0: 1,
+				1: 2,
+				2: 0,
+			}[this.returnValue] || 0;
+			this.returnValueLabel = {
+				0: 'My ships',
+				1: 'All ships',
+				2: 'Compare',
+			}[this.returnValue] || 0;
+		},
+		changeReturnValueMax(){
+			this.returnValueMax = {
+				0: 1,
+				1: 2,
+				2: 0,
+			}[this.returnValueMax] || 0;
+			this.returnValueLabelMax = {
+				0: 'My ships',
+				1: 'All ships',
+				2: 'Compare',
+			}[this.returnValueMax] || 0;
+		},
+		checkData(){
+			if(localStorage.getItem('retrievedObject') === null){
+				this.fetch1Time()
+			}
+			if(localStorage.getItem('retrievedObject') !== null){
+				this.products = this.makeData()
+			}
+			this.loading = false
+		},
+		makeData(){
+			let lvlsData = JSON.parse(localStorage.getItem('lvls'))
+			let row = {}
+			let lvls = []
+			for (let i = 0; i < this.realData.length; i++) {
+				row = this.realData[i]
+				row['level'] = lvlsData[i].lvl
+				lvls.push(row)
+			}
+			return lvls
+		},
+		doSettings(){
+			if(localStorage.getItem('retrievedObject') === null){
+				this.packUserSettings()
+			}
+			if(localStorage.getItem('retrievedObject') !== null){
+				this.unpackUserSettings()
+				this.changeMetas()
+			}
+		},
+		fetch1Time(){
+			let count120Tech = {}
+			let countType = {}
+			let countRarities = {}
+			let countAffiliations = {}
+			let countTech = {}
+			let countCollTech = {}
+			let count120CollTech = {}
+			let count120 = {}
+			let countApplicable = {}
+
+			this.products.forEach(function(element){
+				if(element.level >= 120 && element.level <= 125 && element.collectionApplicable !== null){
+					count120[element.hullType] = (count120[element.hullType] || 0) + 1;
+					count120Tech[element.maxLevelStat] = (count120Tech[element.maxLevelStat] || 0) + 1;
+					count120CollTech[element.collectionStat] = (count120CollTech[element.collectionStat] || 0) + 1;
+				}
+				if(element.collectionApplicable !== null){
+					countType[element.hullType] = (countType[element.hullType] || 0) + 1;
+					countRarities[element.rarity] = (countRarities[element.rarity] || 0) + 1;
+					countTech[element.maxLevelStat] = (countTech[element.maxLevelStat] || 0) + 1;
+					countCollTech[element.collectionStat] = (countCollTech[element.collectionStat] || 0) + 1;
+					countApplicable[element.collectionApplicable] = (countApplicable[element.collectionApplicable] || 0) + 1;
+					countApplicable[element.maxLevelApplicable] = (countApplicable[element.maxLevelApplicable] || 0) + 1;
+				}
+				countAffiliations[element.nationality] = (countAffiliations[element.nationality] || 0) + 1;
+			})
+
+			let barsTech = {}
+			for (let j = 0; j < Object.values(countType).length; j++) {
+				if(count120[Object.keys(countType)[j]]){
+					barsTech[Object.keys(countType)[j]] = count120[Object.keys(countType)[j]]
+				}
+				else{
+					barsTech[Object.keys(countType)[j]] = 0
+				}
+			}
+
+			let radarMaxLevel = {}
+			for (let j = 0; j < Object.values(countTech).length; j++) {
+				if(count120Tech[Object.keys(countTech)[j]]){
+					radarMaxLevel[Object.keys(countTech)[j]] = (100 * count120Tech[Object.keys(countTech)[j]]) / countTech[Object.keys(countTech)[j]]
+				}
+				else{
+					radarMaxLevel[Object.keys(countTech)[j]] = 0
+				}
+			}
+
+			let radarCollection = {}
+			for (let k = 0; k < Object.values(countCollTech).length; k++) {
+				if(count120CollTech[Object.keys(countCollTech)[k]]){
+					radarCollection[Object.keys(countCollTech)[k]] = Math.round((100 * count120CollTech[Object.keys(countCollTech)[k]]) / countCollTech[Object.keys(countCollTech)[k]]) 
+				}
+				else{
+					radarCollection[Object.keys(countCollTech)[k]] = 0
+				}
+			}
+			this.types = Object.keys(countType)
+			this.rarities = Object.keys(countRarities)
+			this.affiliations = Object.keys(countAffiliations)
+
+			var collLevelTest = 0
+			var collLevelUser = 0
+			var collLevelRow = {}
+			var collLevelTable = {}
+			var collLevelRows = []
+			collLevelTable.collLevelRows = collLevelRows
+			
+			var maxLevelTest = 0	
+			var maxLevelUser = 0
+			var maxLevelRow = {}
+			var maxLevelTable = {}
+			var maxLevelRows = []
+			maxLevelTable.maxLevelRows = maxLevelRows
+
+			for (let j = 0; j < Object.keys(countType).length; j++) {
+				maxLevelRow["type"] = Object.keys(countType)[j]
+				collLevelRow["type"] = Object.keys(countType)[j]
+				for (let k = 0; k < Object.keys(countTech).length; k++) {
+					collLevelTest = 0
+					collLevelUser = 0
+					maxLevelTest = 0
+					maxLevelUser = 0
+					for (let i = 0; i < this.products.length; i++) {
+						if (this.products[i].collectionStat === Object.keys(countTech)[k] && this.products[i].collectionApplicable.includes(Object.keys(countType)[j])){
+							collLevelTest += this.products[i].collectionBonus - 0
+							if(this.products[i].level >= 120 && this.products[i].level <= 125){
+								collLevelUser += this.products[i].collectionBonus - 0
+							}
+						}
+						if (this.products[i].maxLevelStat === Object.keys(countTech)[k] && this.products[i].maxLevelApplicable.includes(Object.keys(countType)[j])){
+							maxLevelTest += this.products[i].maxLevelBonus - 0
+							if(this.products[i].level >= 120 && this.products[i].level <= 125){
+								maxLevelUser += this.products[i].maxLevelBonus - 0
+							}
+						}
+					}
+					collLevelRow[Object.keys(countTech)[k]] = collLevelTest === 0 ? null : ['+' + collLevelUser, '+' + collLevelTest, collLevelUser + '/' + collLevelTest]
+					maxLevelRow[Object.keys(countTech)[k]] = maxLevelTest === 0 ? null : ['+' + maxLevelUser, '+' + maxLevelTest, maxLevelUser + '/' + maxLevelTest]
+				}
+				collLevelTable.collLevelRows.push(collLevelRow)
+				maxLevelTable.maxLevelRows.push(maxLevelRow)
+
+				if(Object.keys(countType)[j] === 'Destroyer'){
+					const cloneMaxLevel = Object.assign({}, maxLevelRow);
+					cloneMaxLevel["type"] = 'Guided-missile destroyer';
+					maxLevelTable.maxLevelRows.push(cloneMaxLevel);
+					const cloneCollection = Object.assign({}, collLevelRow);
+					cloneCollection["type"] = 'Guided-missile destroyer';
+					collLevelTable.collLevelRows.push(cloneCollection);
+				}
+
+				if(Object.keys(countType)[j] === 'Battlecruiser'){
+					const cloneMaxLevel = Object.assign({}, maxLevelRow);
+					cloneMaxLevel["type"] = 'Aviation Battleship';
+					maxLevelTable.maxLevelRows.push(cloneMaxLevel);
+					const cloneCollection = Object.assign({}, collLevelRow);
+					cloneCollection["type"] = 'Aviation Battleship';
+					collLevelTable.collLevelRows.push(cloneCollection);
+				}
+				collLevelRow = {}
+				maxLevelRow = {}
+			}
+			let chartsData = [
+				this.sort(countAffiliations), countRarities, this.sort(countType), this.sort(barsTech), this.sort(countTech), this.sort(radarMaxLevel), this.sort(radarCollection), collLevelTable.collLevelRows, maxLevelTable.maxLevelRows, countApplicable
+			]
+			localStorage.setItem('chartsData', JSON.stringify(chartsData));
+
+			this.fetchData()
+		},
+		fetchData(){
+			if(localStorage.getItem('retrievedObject') !== null){
+				this.products = this.makeData()
+			}
+			let notNullLength = 0;
+			let sum = [];
+			let sum120 = [];
+			this.products.forEach(function(element){
+				if (element.collectionApplicable !== null) {
+					notNullLength++;
+				}
+				if (element.level != 0 && element.level < 120 && element.collectionApplicable !== null) {
+					sum.push(element.level);
+				}
+				if (element.level >= 120 && element.level <= 125 && element.collectionApplicable !== null) {
+					sum120.push(element.level);
+				}
+			})
+
+			this.percent = sum120.length
+			this.filterLength = notNullLength
+
+			var chartsData = JSON.parse(localStorage.getItem('chartsData'));
+
+			this.products1 = chartsData[7]
+			this.products2 = chartsData[8]
+			
+			this.types = Object.keys(chartsData[2]);
+			let array = Object.keys(chartsData[1]);
+			[array[0], array[1]] = [array[1], array[0]];
+			this.rarities = array;
+			this.affiliations = Object.keys(chartsData[0]);
+
+			this.chartData = {
+				labels: ['In progress', '120 or higher', 'Not acquired'],
+				datasets: [
+					{
+						data: [sum.length, sum120.length, this.products.length - sum.length - sum120.length],
+						type: 'doughnut',
+						backgroundColor: ["#FF6384","#36A2EB","#FFCE56"],
+						hoverBackgroundColor: ["#FF6384","#36A2EB","#FFCE56"]
+					}
+				]
+			}
+
+			this.basicData = {
+				labels: Object.keys(chartsData[2]),
+				datasets: [
+					{
+						data: Object.values(chartsData[2]),
+						type: 'bar',
+						label: 'All ships by types',
+						backgroundColor: '#42A5F5'
+					},
+					{
+						data: Object.values(chartsData[3]),
+						type: 'bar',
+						label: 'Your ships',
+						backgroundColor: '#FFA726'
+					}
+				]
+			},
+
+			this.normalData = {
+				labels: Object.keys(chartsData[4]),
+				datasets: [
+					{
+						label: 'Collection in %',
+						type: 'radar',
+						data: Object.values(chartsData[6]),
+						backgroundColor: 'rgba(179,181,198,0.2)',
+						borderColor: 'rgba(179,181,198,1)',
+						pointBackgroundColor: 'rgba(179,181,198,1)',
+						pointBorderColor: '#fff',
+						pointHoverBackgroundColor: '#fff',
+						pointHoverBorderColor: 'rgba(179,181,198,1)',
+					},
+					{
+						label: 'Max level in %',
+						type: 'radar',
+						data: Object.values(chartsData[5]),
+						backgroundColor: 'rgba(255,99,132,0.2)',
+						borderColor: 'rgba(255,99,132,1)',
+						pointBackgroundColor: 'rgba(255,99,132,1)',
+						pointBorderColor: '#fff',
+						pointHoverBackgroundColor: '#fff',
+						pointHoverBorderColor: 'rgba(255,99,132,1)',
+					},
+				],
+			}
+		},
+		changeMetas(){
+			if(this.checked){
+				this.hideMetas()
+				this.checked = false
+			}
+			else{
+				this.showMetas()
+				this.checked = true
+			}
+		},
+		hideMetas(){
+			for (var i = this.products.length - 1; i >= 0; i--) {
+				if (this.products[i]["maxLevelStat"] === null) {
+					this.products.splice(i, 1);
+				}
+			}
+			this.checked = true
+			this.packUserSettings()
+		},
+		showMetas(){
+			this.products = this.makeData()
+			this.packUserSettings()
+		},
+		changeTableDisplay(){
+			this.tableClass = this.tableClass === "p-datatable-sm" ? "p-datatable" : "p-datatable-sm"
+			this.packUserSettings()
+		},
+		changeFilterDisplay(){
+			this.filterDisplayValue = this.filterDisplayValue === "row" ? "menu" : "row"
+			this.packUserSettings()
+		},
+		showTech(filter, type){
+			this.filters[filter] = {value: type, matchMode: FilterMatchMode.CONTAINS};
+			window.scrollTo(0,0);
+		},
+		getBody(code){
+			if(code){
+				if(code.includes('.')){
+					return code.replace(/"/g, "").split(".")
+				}
+				return code.replace(/"/g, "").split(",")
+			}
+			if(code === 'null') {
+				return null
+			}
+		},
+		confirmChangeSelected(){
+			this.changeProductsDialog = true;
+		},
+		changeSelectedProducts(confirmLevel) {
+			for (let i = 0; i < this.selectedProducts.length; i++) {
+				if(this.selectedProducts[i].collectionApplicable){
+					this.saveCats(confirmLevel, this.selectedProducts[i]._code)
+				}
+			}
+			this.changeProductsDialog = false
+			this.selectedProducts = null
+			this.fetch1Time()
+		},
+		clearData(){
+			this.$confirm.require({
+				message: 'Do you want to delete all?',
+				header: 'Delete Confirmation',
+				icon: 'pi pi-info-circle',
+				acceptClass: 'p-button-danger',
+				accept: () => {
+					localStorage.clear();
+					this.$toast.add({severity:'info', summary:'Confirmed', detail:'Local storage emptied', life: 3000});
+					location.reload();
+				}
+			});
+		},
+		welcomeGuest(){
+			if(localStorage.getItem('retrievedObject')){
+				this.$toast.add({severity:'success', summary: 'Successful', group: 'br', detail: 'Welcome back!', life: 3000}); 
+			}
+			else{
+				this.$toast.add({severity:'success', summary: 'Successful', group: 'br', detail: 'Welcome!', life: 3000});
+			}
+		},
+		verifyAllProducts(){
+			if(localStorage.getItem('retrievedObject')){
+				let arr = JSON.parse(localStorage.getItem('lvls'))
+				let row = {}
+				let result = []
+				for (let i = 0; i < this.realData.length; i++) {
+					row = {}
+					let searchIndex = arr.findIndex((elem) => elem.name == this.realData[i].en);
+					row['id'] = this.realData[i]._code
+					row['name'] = this.realData[i].en
+					row['lvl'] = searchIndex > -1 ? arr[searchIndex].lvl : 0
+					result.push(row)
+				}
+				localStorage.setItem('lvls', JSON.stringify(result))
+			}
+		},
+		updateData(){
+			this.fetch1Time()
+			this.doSettings()
+			this.$toast.add({severity:'info', summary:'Confirmed', detail:'List updated', life: 3000});
+		},
+		saveCats(x, y) {
+			if(this.isPositiveInteger(x)){
+				let lvlsData = JSON.parse(localStorage.getItem('lvls'));
+				if(x - 0 >= 120){
+					if(lvlsData[this.findIndexById(y)]["lvl"] < 120){
+						this.percent++
+					}
+				}
+				else{
+					if(lvlsData[this.findIndexById(y)]["lvl"] >= 120){
+						this.percent--
+					}
+				}
+				if(localStorage.getItem('retrievedObject') !== null){
+					this.products = this.makeData();
+					lvlsData[this.findIndexById(y)]["lvl"] = x - 0;
+					this.products[this.findIndexById(y)]["level"] = x - 0;
+					localStorage.setItem("lvls", JSON.stringify(lvlsData));
+					this.getNewShips();
+				}
+				else{
+					this.products = this.realData;
+					lvlsData[this.findIndexById(y)]["lvl"] = x - 0;
+					this.products[this.findIndexById(y)]["level"] = x - 0;
+					localStorage.setItem("retrievedObject", JSON.stringify('true'));
+					this.getNewShips();
+					localStorage.setItem("lvls", JSON.stringify(lvlsData));
+					this.fetch1Time();
+					this.$toast.add({severity:'success', summary: 'Successful', group: 'br', detail: 'You have successfuly changed your first record!', life: 3000}); 
+				}
+				this.doSettings()
+			} else{
+				this.$toast.add({severity:'error', summary: 'Error Message', detail:'Please enter valid number', life: 3000});
+			}
+		},
+		isPositiveInteger(val) {
+			let str = String(val);
+			str = str.trim(); 
+			if (!str) {
+				return false;
+			}
+			str = str.replace(/^0+/, "") || "0";
+			var n = Math.floor(Number(str));
+			return n !== Infinity && n <= 125 && String(n) === str && n >= 0;
+		},
+		levels(){
+			if(localStorage.getItem('lvls') === null){
+				let lvls = []
+				let row = {}
+				for (let i = 0; i < this.realData.length; i++) {
+					row = {}
+					row['id'] = this.realData[i]._code
+					row['name'] = this.realData[i].en
+					row['lvl'] = this.realData[i].level
+					lvls.push(row)
+				}
+				localStorage.setItem('lvls', JSON.stringify(lvls));
+			}
+		},
+		clearFilter() {
+			console.log(this.products3)
+			this.filters = {
+				'global': {value: null, matchMode: FilterMatchMode.CONTAINS},
+				'en': {value: null, matchMode: FilterMatchMode.CONTAINS},
+				'rarity': {value: null, matchMode: FilterMatchMode.IN},
+				'hullType': {value: null, matchMode: FilterMatchMode.IN},
+				'nationality': {value: null, matchMode: FilterMatchMode.IN},
+				'collectionStat': {value: null, matchMode: FilterMatchMode.CONTAINS},
+				'collectionApplicable': {value: null, matchMode: FilterMatchMode.CONTAINS},
+				'collectionBonus': {value: null, matchMode: FilterMatchMode.CONTAINS},
+				'maxLevelApplicable': {value: null, matchMode: FilterMatchMode.CONTAINS},
+				'maxLevelBonus': {value: null, matchMode: FilterMatchMode.CONTAINS},
+				'maxLevelStat': {value: null, matchMode: FilterMatchMode.CONTAINS},
+				'level': {value: null, matchMode: FilterMatchMode.EQUALS}
+			}
+		},
+		levelClass(data) {
+			return [
+				{
+					'zero': data.level === 0,
+					'inProcess': data.level > 0 && data.level < 70,
+					'limit': data.level >= 70 && data.level < 120,
+					'a120': data.level >= 120
+				 }
+			];
+		},
+		findIndexById(code) {
+			let index = -1;
+			for (let i = 0; i < this.realData.length; i++) {
+				if (this.realData[i]._code === code) {
+					index = i;
+					break;
+				}
+			}
+			return index;
+		},
+		findNewIndexById(code) {
+			let rawObject = JSON.parse(JSON.stringify(this.products4));
+			let index = -1;
+			for (let i = 0; i < rawObject.length; i++) {
+				if (rawObject[i]._code === code) {
+					index = i;
+					break;
+				}
+			}
+			return index;
+		}
+	}
+}
+</script>
+
+<style lang="scss" scoped>
+.product-badge {
+	border-radius: 2px;
+	padding: .25em .5rem;
+	text-transform: uppercase;
+	font-weight: 700;
+	font-size: 12px;
+	letter-spacing: .3px;
+}
+.done {
+	width: 4rem;
+	margin-right: 0.5rem;
+	text-align: center;
+}
+img {
+	vertical-align: middle;
+	cursor: pointer;
+	margin-left: 0.4rem;
+}
+.table-img {
+	display: block;
+	margin-left: auto;
+	margin-right: auto;
+}
+.product-badge.status-normal {
+	background-color: #dee2e6;
+	color: #23547b;
+}
+.product-badge.status-rare {
+	background-color: #9FE8FF;
+	color: #23547b;
+}
+.product-badge.status-elite {
+	background-color: #C4ADFF;
+	color: #694382;
+}
+.product-badge.status-super {
+	background-color: #EE9;
+	color: #8a5340;
+}
+.product-badge.status-priority {
+	background-color: #EE9;
+	color: #8a5340;
+}
+.product-badge.status-ultra {
+	background: linear-gradient(120deg,#fbffca,#baffbf,#a7efff,#ffabff) !important;
+	color: #23547b;
+}
+.product-badge.status-decisive {
+	background: linear-gradient(120deg,#fbffca,#baffbf,#a7efff,#ffabff) !important;
+	color: #23547b;
+}
+.zero {
+	font-weight: 600;
+	color: #CCC;
+	display:inline-block;
+}
+.inProcess {
+	font-weight: 600;
+	color: #e91e63;
+	display:inline-block;
+}
+.limit {
+	font-weight: 600;
+	color: #ad7e2d;
+	display:inline-block;
+}
+.a120 {
+	font-weight: 600;
+	color: #00B050;
+	display:inline-block;
+}
+::v-deep(.row-accessories) {
+	background-color: rgba(0,0,0,.15) !important;
+}
+</style>

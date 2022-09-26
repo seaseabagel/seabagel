@@ -1,17 +1,74 @@
 <!DOCTYPE html>
-<html lang="">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width,initial-scale=1.0">
-    <link rel="icon" href="<%= BASE_URL %>favicon.ico">
-    <title><%= htmlWebpackPlugin.options.title %></title>
-  </head>
-  <body>
-    <noscript>
-      <strong>We're sorry but <%= htmlWebpackPlugin.options.title %> doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
-    </noscript>
-    <div id="app"></div>
-    <!-- built files will be auto injected -->
-  </body>
+<html lang="en">
+<head>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-93461466-1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+    </script>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width,initial-scale=1.0">
+	<link rel="icon" href="<%= BASE_URL %>favicon.ico">
+	<title>Sakai Vue</title>
+    <link id="theme-link" rel="stylesheet" href="<%= BASE_URL %>themes/lara-light-indigo/theme.css">
+</head>
+    <body>
+        <!-- 
+@@@@@@@@@@@@G7:^^^^^:^G@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@P.::::?#&@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@&P~::^^^^^^G@@@@@@@@@@@@@@@@@@@@@@5J77YG#@G.:::~B#&@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@#G?^:^^^^^^P@@@@@@@@&GG&@@@@@@@@5YBP?: .YB..::G#&@@@@&&&&@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@&GY~:::^^^~P&@@@@B?:.~!5@@&BGG5YGGGBGJ:JB...Y###G5J77!~!!!7J5G&@@@@@@@@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@B57^:::^:~P&@G7:..JPY!!?~^^^!55PPPGG5G#!.!&B#!^7P&@&&##BPY7!~7YB@@@@@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@@@B5YJ^:::^PB!::.?GPP57^^:..:^~?YJ5PPG#BPBBBG.  .~Y#@@@@@@@@#PJ!7P&@@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@@@@@#BGY~::^PG~ !B5!~J^       .^?YJPGPG#BGG#J .    .7B@@@@@@@@@&PJ?5&@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@@@@@@@#BBY~:5BP^G5?^~?:.^^:~~?!~^YJ5BGP#&BB&57^:.    .J&@@@@@@@@@@#PYP&@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@@@@@@&BY5GG5PGPPGYJ!~7!~^^:^::..^J?BGBGB&##&P77!^^:... ^B@@@@@@@@@@@&G5G@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@@@BY7!?5PPPGGGBB5BJJ!!?7...^~.:~??5G5#B&BGGBG7!7!~~^:^!^:P@@@@@@@@@@@@&P5#@@@@@@@@@@
+@@@@@@@@@@@@@@@&577YB&@@55PGGGB#P#G5PY7?7!~!!7??JP&##B&BY?7J5Y7!!!!!~^!Y7^Y@@@@@@@@@@@@@#5G@@@@@@@@@
+@@@@@@@@@@@@@B?!?G@@@@@P~~7?PBB##&&#BGGGGGP5JYJ?!?G@&BGY?77?JYJ7!!7!!7!YY?!J@@@@@@@@@@@@@@GP&@@@@@@@
+@@@@@@@@@@@#?!Y#@@@@@@#~.::~JYBBPG##&#BB#@&GYJ??75#&BYJYJJ??JJJJ!!7?7?7!P5??Y@@@@@@@@@@@@@@B5&@@@@@@
+@@@@@@@@@@P7Y#@@@@@@@B!.:^~!7Y5J7JY5PBBB&&##BG5GPG#PJ7?J!!???JJ??!7JJJJ7?B5?JB@@@@@@@@@@@@@@#5&@@@@@
+@@@@@@@@@Y?G@@@@@@@@&!:^~!!!!YY!7?J?7?JYY5G#&&&BYPJ777?J?~!77?YJJ??JYJ5J?Y&P?JP@@@@@@@@@@@@@@#5&@@@@
+@@@@@@@&YJB@@@@@@@@@J~!!!!7!7YJ!?JJJJ7?7?777?Y55J7!77?JJ7::..~JJ???J5YY5JJ#&GYY5&@@@@@@@@@@@@@PG@@@@
+@@@@@@&JJB@@@@@@@@@P?JY7777!7J?7?JJ7JJJJ?77!!!!!!!!77J77:^!7?YJ5??JJ5YY5Y?B&&B5Y5#@@@@@@@@@@@@&5&@@@
+@@@@@@Y?B@@@@@@@@@GJJGJ777J7?JJ??YJJ!?YYJJ?7!!!!!777?J77YPGGB55PJYJJ5YY5Y?G&#&BPBPJ#@@@@@@@@@@@P#@@@
+@@@@@P7P@@@@@@@@@&JYPB????YJ?YYY?JJ~~:~?JJ???77!!??7?J?GGGPJJ5:7YJJJ5Y5YY?G&##GB#!:~P&@@@@@@@@@P&@@@
+@@@@&7J&@@@@@@@@@55YBBJ???5YJYY5J?JY5YYYP5Y????!77?!7~.77J5J!7^~JJ?J5GPYJ?B&#BB#7~~~~7G@@@@@@@@G@@@@
+@@@@P~P@@@@@@@@@G555BB5JJJ5PYYYYY5PP?5GBPYG?:^!7!7!~~...:::::::!Y?YG#BGY5J#BBGG5!~~!!!!JB@@@@@@#@@@@
+@@@@Y7#@@@@@@@@&PG5GBBGPJJ5G55JYY55:.5Y7YY!~...:^~::..::::::::~7JPG##PPPP5##GPYJJ?7!~!!!!Y#@@@@@@@@@
+@@@@JJ@@@@@@@@@@#GPGGBGBPYYPPP55YJJ~:^7^:::.:...:......::::::^^7PPPBPPGGYGGBGGPY?JJ?7!!!!!7Y#@@@@@@@
+@@@@YY@@@@@@@@@@@&BBBGGBBPY5BBGGGP5J^:::::::::::::::....::::::!YPGBGPGBPY#GYJYP5YJ????777!!!75#@@@@@
+@@@@BY@@@@@@@@@@@@&#BBGG#BGPPB##BGP5Y7~^^:::::::::::::^^.::::^?JJBBGGBG5J?^.:?JYY5Y????????77!7Y#@@@
+@@@@@P#@@@@@@@@@@@&PGGBB##BBPPBBP55555J!^^::::::^:^^::::::::^^^7GB###P5JY?:.~YYJYJ55J?????????777YB@
+@@@@@&B@@@@@@@@@@&5J5BBBBBB##GGBBBGPPPP5J7~^:::::::::::::::::!G@###G5PYJYJ::7YYYJYJ5P5J?????????777?
+@@@@@@@@@@@@@@@@#5???JY5PPPG#PGGGGGGGBB#BY7~^:::::::::::::^!?5JYBBPYYPJJY7::JYYJYJPYYPPY????7777???7
+@@@@@@@@@@@@@@&PY?JJ^^.!YJJJ5Y5GGPPBGYYPGBG5J!~^::::::::~?J??J^JBG5JYPJJY~:^YYJJJYJP5J5PPY????77777?
+@@@@@@@@@@@@&PYY7?JY^^:?YJJY5?JPPPPGP!!!77??7!JY777!~~!JJ???JY!YBPYJJ5?JJ^:~5YJJJJY?PGJY5PP5J?777777
+@@@@@@@@#G5JJ5P7??JJ^:~JJJJ55??P5PYPY!!!7!!!!7?7JP5PPGPPPY!7??YPGYJJJ5JY?^:!YJJJJJJY?PB5JY55P5Y?77!!
+@@&BPY?77?Y5PP7???J7^:????JPPJ?55P?G?!!!!!!777J!!&&&YJB##!!J?!5GPJ?JJYYJ!~:?YJJJJJJJJ7GBG5YYYJYP5YJ?
+?7!~!7J5PPP5P77777J~^7????Y5GY?YGJJP!!!!!!!!!!Y?7J#Y!7?B?~?!!75GY?JJ5YYJ~!:JYJJJJJ???J?PPPG5J5?!?YP5
+7?JY555YYJJ5777777J^7?777J5YB5YYP75J777!!!!77JP7J7?JBBY7!5GGB#GBJ?J5PYJY~!:JJJJJJJJJJJJ?Y!^...:..~~~
+YYYYJJJJJJP~~777???7?777?5JYB5Y5YJPJJJYY????JB###B57JJ?5B&&#BGB5JJY5J5JY?~^????7777???7!7:   ... .^ 
+J??JJJYY5P?.^??77777777?Y?J5BGJPGY77??77??JPB#######J5####BGGBBYJYPJ?JYJJ?77??JJJJJJJ7~^::....:..:^~
+YYY5555PPY!!!!!!!77?77JY?JYY?GY?G5J7??J5BB###BBB##BPG########&Y7YGP5!~!???Y?!~!!!!!~~?5JJ?7~^^^^::.~
+PY?~ :~YGPGJ!^:!YYJJYYJ??!7?!?5^7J55PBBBBBBBBBGGGB57JGBBGGGGB5~JGGG#G7::~!7?J?~^^::::.^7Y5J:~^^^~~7J
+5BGP?:  .!5GGPJP7!7?7!~~^^~?~^5J:!G#BBBBBBBGGGGGGGG5GGGGGGGPJ75GBBG555J~:::^~?PJ^:::::.^PJ~::^7?YG##
+~.!P&#Y!~!!?YJ?^::::::^^^^!7J?GBY~^5BGGGGGGPGGGGGPP5GGGPGG5Y5BGP5YYYYYY5J~::^~7JP7::::::~Y:^YGB&#5J7
+^~~!?PGBG!^77!^::::.:::^~JPGBGGGBP?!JPGPPPPPPPPPPPPPPPPPPPPGPP5YYJYYYYYY55Y~:~7^?PY~::::^YJG&#B5!~^:
+....^~?YYJ!7!~^::....:~JGBGPPPPPPPGG55PGPPPPPPPPPPPPPPPPPPPP555YYYYJJYYYYY5PY7?!:!YP7::^:!J7YPY7!~~?
+ ^77!^!?7!!~^^!^....!5BGPPP555555555PPPPPPPPPPPPPPPPPPPPPPP55555YYYYYJYYYYY5PPG?:^!J5J^:~~~~~~~?55BG
+7!:~??!^:::^~~^~!::YBGPPP5555555555555555555PPPPPPPPPPPPPP5555555YYYYYYYYYY55PPG7:^!?JY!^~~??7!^5&#G
+7?5?~:::::^::^~~:7GBGPPP5555555555555555555PPPPPPPGGPPPPPP5555555YYYYYYY5555PPPPGJ^^7??J7::!J????GJ!
+Y?^::::::::^::.:7GBGGPPP55555555555555555PPPPPPPPGGGGPPPPP55555555555555PPPPPPGGG#?^^!?7??~^JJ???JJ:
+:.:::::::::^::.!GBGGGGPPPP5555555PPPPPPPPPPPPGGGGGGGGGGGPPPPPPPPPPPPPPPPPGGGGGGBB#G^^^!777Y!^J???75?
+        -->
+        <div id="app">
+            <div class="preloader">
+                <div class="preloader-content">
+                </div>
+            </div>
+        </div>
+    </body>
 </html>

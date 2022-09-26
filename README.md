@@ -1,4 +1,4 @@
-# seabagel
+# task
 
 ## Project setup
 ```
