@@ -36,7 +36,7 @@
           loginWithRedirect();
         },
         logout: () => {
-          logout({ returnTo: 'http://localhost:8080/Login' });
+          logout({ returnTo: 'https://not-test-vue-tracker.onrender.com/login' });
         },
         isAuthenticated,
         user
