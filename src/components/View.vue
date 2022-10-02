@@ -498,7 +498,7 @@ export default {
 			this.levels()
 		});
 		//this.productService.getNew().then(data => {
-		this.productService.getAPI().then(data => {
+		this.productService.getNewSmall().then(data => {
 			this.products3 = data
 			this.getNewShips()
 		});

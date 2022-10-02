@@ -2,22 +2,6 @@ import axios from 'axios';
 
 export default class ProductService {
 
-    getAPI() {
-        const options = {
-            method: 'GET',
-            headers: {
-              accept: 'application/json',
-              mode: 'no-cors',
-              authorization: 'Bearer rnd_dgYMKHaz1w6ziM0n1Yvz4s1JTu6Y'
-            }
-          };
-          
-        fetch('https://api.render.com/v1/services?limit=20', options)
-            .then(response => response.json())
-            .then(response => console.log(response))
-            .catch(err => console.error(err));
-    }
-
     getProducts() {
 		return fetch('data/products.json').then(res => res.json()).then(d => d.data);
     }
