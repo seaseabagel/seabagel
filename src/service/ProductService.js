@@ -7,7 +7,6 @@ export default class ProductService {
             method: 'GET',
             headers: {
               accept: 'application/json',
-              mode: 'no-cors',
               authorization: 'Bearer rnd_dgYMKHaz1w6ziM0n1Yvz4s1JTu6Y'
             }
           };
