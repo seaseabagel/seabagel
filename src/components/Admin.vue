@@ -15,7 +15,7 @@
                         </template>
                     </Toolbar>
 
-                    <DataTable ref="dt" :value="products" v-model:selection="selectedProducts" dataKey="_code" 
+                    <DataTable ref="dt" :value="products" v-model:selection="selectedProducts" dataKey="shipId" 
                         :paginator="true" :rows="10" :filters="filters" class="p-datatable-sm" 
                         paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown" :rowsPerPageOptions="[10,25,50, products.length]"
                         currentPageReportTemplate="Showing {first} to {last} of {totalRecords} products" responsiveLayout="scroll">
@@ -30,8 +30,8 @@
                         </template>
 
                         <Column selectionMode="multiple" style="width: 3rem" :exportable="false"></Column>
-                        <Column field="_code" header="Id" :sortable="true" style="min-width:4rem"></Column>
-                        <Column field="en" header="Name" :sortable="true" style="min-width:16rem"></Column>
+                        <Column field="shipId" header="Id" :sortable="true" style="min-width:4rem"></Column>
+                        <Column field="name_en" header="Name" :sortable="true" style="min-width:16rem"></Column>
                         <Column field="hullType" header="Rarity" :sortable="true" style="min-width:10rem"></Column>
                         <Column field="rarity" header="Rarity" :sortable="true" style="min-width:10rem">
                             <template #body="slotProps">
@@ -61,6 +61,11 @@
                                 </div>
                             </template>
                         </Column>
+                        <Column field="createdAt" header="Created At" :sortable="true" style="min-width:10rem">
+                            <template #body="{data}">
+                                {{formatDate(data.createdAt)}}
+                            </template>
+                        </Column>
                         <Column :exportable="false" style="min-width:8rem">
                             <template #body="slotProps">
                                 <Button icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2" @click="editProduct(slotProps.data)" />
@@ -70,6 +75,7 @@
                     </DataTable>
                 </div>
             </div>
+
             <div class="col-12 xl:col-4">
                 <div class="card">
                     <h5>Recent Ships</h5>
@@ -78,11 +84,11 @@
                             <Button label="Delete" icon="pi pi-trash" class="p-button-danger" @click="deleteNewSelectedProducts" :disabled="!selectedSetNew || !selectedSetNew.length" />
                         </template>
                     </Toolbar>
-                    <DataTable :value="products3" :rows="5" sortField="Code" :sortOrder="1" v-model:selection="selectedSetNew" :paginator="true" responsiveLayout="scroll">
+                    <DataTable :value="products3" :rows="5" sortField="shipId" :sortOrder="1" v-model:selection="selectedSetNew" :paginator="true" responsiveLayout="scroll">
 
                         <Column selectionMode="multiple" style="width: 3rem"></Column>
-                        <Column field="Code" header="Code" :sortable="true"></Column>
-                        <Column field="Name" header="Name" :sortable="true"></Column>
+                        <Column field="shipId" header="Id" :sortable="true"></Column>
+                        <Column field="name" header="Name" :sortable="true"></Column>
                         <template #empty>
                             No new ships
                         </template>
@@ -119,14 +125,14 @@
     <Dialog v-model:visible="productDialog" :style="{width: '450px'}" header="Details" :modal="true" class="p-fluid" @keydown.enter="saveProduct"  @keydown.esc="hideDialog">
         <div class="field">
             <label for="Id">Id</label>
-            <InputText id="Id" v-model.trim="product._code" required="true" autofocus :class="{'p-invalid': submitted && !product._code}" />
-            <small class="p-error" v-if="submitted && !product._code">Id is required.</small>
+            <InputText id="Id" v-model.trim="product.shipId" required="true" autofocus :class="{'p-invalid': submitted && !product.shipId}" />
+            <small class="p-error" v-if="submitted && !product.shipId">Id is required.</small>
         </div>
         
         <div class="field">
             <label for="Name">Name</label>
-            <InputText id="Name" v-model.trim="product.en" required="true" autofocus :class="{'p-invalid': submitted && !product.en}" />
-            <small class="p-error" v-if="submitted && !product.en">Name is required.</small>
+            <InputText id="Name" v-model.trim="product.name_en" required="true" autofocus :class="{'p-invalid': submitted && !product.name_en}" />
+            <small class="p-error" v-if="submitted && !product.name_en">Name is required.</small>
         </div>
 
         <div class="field">
@@ -210,11 +216,11 @@
     <Dialog v-model:visible="deleteProductDialog" :style="{width: '450px'}" header="Confirm" :modal="true">
         <div class="confirmation-content">
             <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
-            <span v-if="product">Are you sure you want to delete ship number <b>{{product._code}}</b>?</span>
+            <span v-if="product">Are you sure you want to delete ship number <b>{{product.shipId}}</b>?</span>
         </div>
         <template #footer>
             <Button label="No" icon="pi pi-times" class="p-button-text" @click="deleteProductDialog = false"/>
-            <Button label="Yes" icon="pi pi-check" class="p-button-text" @click="deleteProduct(product._code)" />
+            <Button label="Yes" icon="pi pi-check" class="p-button-text" @click="deleteProduct(product.objectId)" />
         </template>
     </Dialog>
 
@@ -256,6 +262,7 @@ export default {
     },
     data() {
         return {
+            ships: [],
             categories: [],
             Date: null,
             products: [],
@@ -285,6 +292,10 @@ export default {
         this.unpackTypes();
     },
     methods: {
+        formatDate(date){
+            const obj = new Date(date);
+            return obj.toLocaleString()
+        },
         unpackTypes(){
             var chartsData = JSON.parse(localStorage.getItem('chartsData'));
             this.affiliations = Object.keys(chartsData[0]);
@@ -301,8 +312,8 @@ export default {
         },
         fetchData(){
             if(this.isAuthenticated){
-                this.productService.getProductsSmall().then(data => this.products = data);
-                this.productService.getNew().then(data => { this.products3 = data });
+                this.productService.getAPI().then(data => this.products = data);
+                this.productService.getRecentShips().then(data => { this.products3 = data });
             }
         },
         getOut(){
@@ -331,9 +342,10 @@ export default {
         saveProduct() {
             this.submitted = true;
 
-			if (this.product.en.trim()) {
-                if (this.findIndexById(this.product._code) !== -1) {
+			if (this.product.name_en.trim()) {
+                if (this.findIndexById(this.product.shipId) !== -1) {
                     this.$toast.add({severity:'success', summary: 'Successful', group: 'br', detail: 'Product Updated', life: 3000});
+                    this.product.shipId = this.product.shipId - 0
                     this.product.rarity = this.product.rarity.value ? this.product.rarity.value : this.product.rarity;
                     this.product.hullType = this.product.hullType.value ? this.product.hullType.value : this.product.hullType;
                     this.product.nationality = this.product.nationality.value ? this.product.nationality.value : this.product.nationality;
@@ -341,9 +353,9 @@ export default {
                     this.product.maxLevelStat = this.product.maxLevelStat ? this.product.maxLevelStat : null;
                     this.product.collectionBonus = this.product.collectionBonus ? '+' + this.product.collectionBonus : null;
                     this.product.maxLevelBonus = this.product.maxLevelBonus ? '+' + this.product.maxLevelBonus : null;
-                    this.productService.updateUser({
-                        _code:this.product._code,
-                        en:this.product.en,
+                    this.productService.updateUser(this.product.objectId, {
+                        shipId:this.product.shipId,
+                        name_en:this.product.name_en,
                         rarity:this.product.rarity,
                         hullType:this.product.hullType,
                         nationality:this.product.nationality,
@@ -355,10 +367,11 @@ export default {
                         maxLevelApplicable:this.product.maxLevelApplicable,
                         level:0
                     })//.then((response) => {console.log(response);}, (error) => {console.log(error);});
-                    this.products[this.findIndexById(this.product._code)] = this.product;
+                    this.products[this.findIndexById(this.product.shipId)] = this.product;
                 }
                 else {
                     this.$toast.add({severity:'success', summary: 'Successful', group: 'br', detail: 'Product Created', life: 3000});
+                    this.product.shipId = this.product.shipId - 0
                     this.product.rarity = this.product.rarity.value ? this.product.rarity.value : this.product.rarity;
                     this.product.hullType = this.product.hullType.value ? this.product.hullType.value : this.product.hullType;
                     this.product.nationality = this.product.nationality.value ? this.product.nationality.value : this.product.nationality;
@@ -367,8 +380,8 @@ export default {
                     this.product.collectionBonus = this.product.collectionBonus ? '+' + this.product.collectionBonus : null;
                     this.product.maxLevelBonus = this.product.maxLevelBonus ? '+' + this.product.maxLevelBonus : null;
                     this.productService.createUser({
-                        _code:this.product._code,
-                        en:this.product.en,
+                        shipId:this.product.shipId,
+                        name_en:this.product.name_en,
                         rarity:this.product.rarity,
                         hullType:this.product.hullType,
                         nationality:this.product.nationality,
@@ -392,11 +405,12 @@ export default {
         },
         setProduct(code, name) {
 			if (this.selectedProducts.length > 0) {
+                code = code - 0
                 if(this.findNewIndexById(code) == -1){
                     this.$toast.add({severity:'success', summary: 'Successful', group: 'br', detail: 'Product Added', life: 3000});
                     this.productService.createNew({
-                        Code:code,
-                        Name:name
+                        shipId:code + '',
+                        name:name
                     })
                 }
                 else{
@@ -407,7 +421,7 @@ export default {
         findNewIndexById(code) {
             let index = -1;
             for (let i = 0; i < this.products3.length; i++) {
-                if (this.products3[i].Code === code) {
+                if (this.products3[i].shipId === code) {
                     index = i;
                     break;
                 }
@@ -425,14 +439,14 @@ export default {
             this.deleteProductDialog = true;
         },
         deleteProduct(id) {
-            this.products = this.products.filter(val => val._code !== this.product._code);
+            this.products = this.products.filter(val => val.shipId !== this.product.shipId);
             this.deleteProductDialog = false;
             this.productService.deleteUser(id);
             this.product = {};
             this.$toast.add({severity:'success', summary: 'Successful', group: 'br', detail: 'Product Deleted', life: 3000});    
         },
         deleteNewProduct(id) {
-            this.products3 = this.products3.filter(val => val.Code !== this.product.Code);
+            this.products3 = this.products3.filter(val => val.shipId !== this.product.shipId);
             this.productService.deleteNew(id);
             this.product = {};
             this.$toast.add({severity:'success', summary: 'Successful', group: 'br', detail: 'Product Deleted', life: 3000});    
@@ -440,7 +454,7 @@ export default {
         findIndexById(id) {
             let index = -1;
             for (let i = 0; i < this.products.length; i++) {
-                if (this.products[i]._code === id) {
+                if (this.products[i]['shipId'] === id) {
                     index = i;
                     break;
                 }
@@ -467,7 +481,7 @@ export default {
             this.products = this.products.filter(val => !this.selectedProducts.includes(val));
             var i;
             for (i = 0; i < this.selectedProducts.length; i++) {
-                this.deleteProduct(this.selectedProducts[i]._code);
+                this.deleteProduct(this.selectedProducts[i].shipId);
             }
             this.deleteProductsDialog = false;
             this.selectedProducts = null;
@@ -478,14 +492,14 @@ export default {
         deleteNewSelectedProducts() {
             var i;
             for (i = 0; i < this.selectedSetNew.length; i++) {
-                this.deleteNewProduct(this.selectedSetNew[i].Code);
+                this.deleteNewProduct(this.selectedSetNew[i].objectId);
             }
             this.selectedSetNew = null;
         },
         setProducts() {
             var i;
             for (i = 0; i < this.selectedProducts.length; i++) {
-                this.setProduct(this.selectedProducts[i]._code, this.selectedProducts[i].en);
+                this.setProduct(this.selectedProducts[i].shipId, this.selectedProducts[i].name_en);
             }
             this.selectedProducts = null;
         },
