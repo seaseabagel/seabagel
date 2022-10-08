@@ -6,10 +6,10 @@
 		<div class="col-12">
 			<div class="card">
 				<h5 class="flex p-1">Manage Fleet Tech</h5>
-				<DataTable id="dt" ref="dt" stripedRows :value="products" :loading="loading" editMode="cell" :class="tableClass" v-model:filters="filters"
-				v-model:selection="selectedProducts" :metaKeySelection="false" :paginator="true" :rows="10" :rowsPerPageOptions="[10,25,50, products.length]"
-				paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-				responsiveLayout="scroll" :filterDisplay="filterDisplayValue" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} ships" >
+				<DataTable id="dt" ref="dt" stripedRows :sortField="dtSortField" :sortOrder="1" :value="products" :loading="loading" editMode="cell" :class="tableClass" v-model:filters="filters"
+					v-model:selection="selectedProducts" :metaKeySelection="false" :paginator="true" :rows="10" :rowsPerPageOptions="[10,25,50, products.length]"
+					paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+					responsiveLayout="scroll" :filterDisplay="filterDisplayValue" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} ships" >
 					<template #header>
 						<div class="flex align-items-center">
 							<span class="p-input-icon-left flex align-items-center">
@@ -22,10 +22,10 @@
 						</div>
 					</template>
 					<Column selectionMode="multiple" style="width: 3rem" />
-					<Column field="_code" header="Id" :sortable="true" />
-					<Column field="en" header="Name" :sortable="true"> <!-- I was banned from wiki for generating links to ships -->
+					<Column field="shipId" header="Id" :sortable="true" />
+					<Column field="name_en" header="Name" :sortable="true">
 						<template #filter>
-							<InputText type="text" v-model="filters['en'].value" class="p-column-filter" :placeholder="`Search by name - `" style="min-width: 9rem;" />
+							<InputText type="text" v-model="filters['name_en'].value" class="p-column-filter" :placeholder="`Search by name - `" style="min-width: 9rem;" />
 						</template>
 					</Column>
 					<Column field="hullType" header="Type" :showFilterMenu="false" :sortable="true" style="min-width:12rem">
@@ -90,7 +90,7 @@
 							</span>
 						</template>
 						<template #editor="{ data, field }">
-							<InputText @change="saveCats(data[field], data._code)" v-model="data[field]" />
+							<InputText @change="saveCats(data[field], data.shipId)" v-model="data[field]" />
 						</template>
 						<template #filter="{filterModel}">
 							<Dropdown v-model="filterModel.value" @change="filterLevels(filterModel.value.min, filterModel.value.max)" :options="levelFilters" placeholder="Any">
@@ -106,8 +106,8 @@
 		<div class="col-12 xl:col-8">
 			<div class="card">
 				<h5>Recent Ships</h5>
-				<DataTable :loading="loadingRecent" editMode="cell" :value="products4" :rows="5" sortField="_code" :sortOrder="1" :paginator="true" responsiveLayout="scroll">
-					<Column field="en" header="Name" :sortable="true" />
+				<DataTable :loading="loadingRecent" editMode="cell" :value="products4" :rows="5" sortField="shipId" :sortOrder="1" :paginator="true" responsiveLayout="scroll">
+					<Column field="name_en" header="Name" :sortable="true" />
 					<Column field="hullType" header="Type" :sortable="true" />
 					<Column field="rarity" header="Rarity" :sortable="true" style="width: 9rem;">
 						<template #body="slotProps">
@@ -122,7 +122,7 @@
 							</div>
 						</template>
 						<template #editor="{ data }">
-							<InputText @change="saveCats(data.level, data._code)" v-model="data.level" />
+							<InputText @change="saveCats(data.level, data.shipId)" v-model="data.level" />
 						</template>
 					</Column>
 						<template #empty>
@@ -233,8 +233,8 @@
 		<img src="https://www.primefaces.org/wp-content/uploads/2020/05/placeholder.png" :alt="product.image" class="product-image" v-if="product.image" />
 		<div class="field">
 			<label for="level">Level</label>
-			<InputText id="level" v-model.trim="confirmLevel" required="true" autofocus :class="{'p-invalid': submitted && !confirmLevel}" />
-			<small class="p-error" v-if="submitted && !confirmLevel">Number is required.</small>
+			<InputText id="level" v-model.trim="confirmLevel" required="true" autofocus :class="{'p-invalid': !confirmLevel}" />
+			<small class="p-error" v-if=" !confirmLevel">Number is required.</small>
 		</div>
 		<div class="confirmation-content">
 			<i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
@@ -256,6 +256,8 @@ import EventBus from '../AppEventBus';
 export default {
 	data() {
 		return {
+			dtSortField: null,
+			API: null,
 			collHidden: null,
 			userSettings: {},
 			returnValueLabel: 'My ships',
@@ -338,7 +340,7 @@ export default {
 			levelFilters: null,
 			filters: {
 				'global': {value: null, matchMode: FilterMatchMode.CONTAINS},
-				'en': {value: null, matchMode: FilterMatchMode.CONTAINS},
+				'name_en': {value: null, matchMode: FilterMatchMode.CONTAINS},
 				'rarity': {value: null, matchMode: FilterMatchMode.IN},
 				'hullType': {value: null, matchMode: FilterMatchMode.IN},
 				'nationality': {value: null, matchMode: FilterMatchMode.IN},
@@ -485,25 +487,34 @@ export default {
 			{field: 'Done', min: '120', max: '125'}
 		];
 		this.welcomeGuest();
+		this.productService.getRecentShips().then(data => {
+			this.products3 = data
+		});
 		this.productService.getProducts().then(data => {this.exp = data});
-		//this.productService.getShips().then(data => {this.shipgirls = data}); //json example
-		//this.productService.getProductsSmall().then(data => {
-		this.productService.getShips().then(data => { //delete this later
+		this.productService.getAPI().then(data => {
 			this.products = this.realData = data
+			this.sortData()
 			this.verifyAllProducts()
 			this.afterImport()
 			this.checkData()
 			this.fetchData()
 			this.doSettings()
 			this.levels()
-		});
-		//this.productService.getNew().then(data => {
-		this.productService.getNewSmall().then(data => {
-			this.products3 = data
 			this.getNewShips()
 		});
 	},
 	methods: {
+		sortData(){
+			let array = this.realData
+			array.sort(function(a, b) {
+				var keyA = new Date(a.shipId),
+					keyB = new Date(b.shipId);
+				if (keyA < keyB) return -1;
+				if (keyA > keyB) return 1;
+				return 0;
+			});
+			this.realData = array
+		},
 		filterLevels(x, y){
 			this.filters['level'] = {operator: FilterOperator.AND, constraints: [{value: x, matchMode: FilterMatchMode.GREATER_THAN_OR_EQUAL_TO},{value: y, matchMode: FilterMatchMode.LESS_THAN_OR_EQUAL_TO}]}
 		},
@@ -541,13 +552,9 @@ export default {
 				return '#495057'
 			}
 		},
-		localstorage(){
-			return localStorage.getItem('retrievedObject') === null
-		},
 		getNewShips(){
-			let obj = this.localstorage() ? this.realData : this.makeData()
 			for (let j = 0; j < this.products3.length; j++) {
-				this.products4[j] = obj[this.findIndexById(this.products3[j].Code)]
+				this.products4[j] = this.realData[this.findIndexById(this.products3[j]['shipId'])]
 			}
 			this.loadingRecent = false
 		},
@@ -558,9 +565,9 @@ export default {
 				let result = []
 				for (let i = 0; i < this.realData.length; i++) {
 					row = {}
-					let searchIndex = arr.findIndex((elem) => elem.name == this.realData[i].en);
-					row['id'] = this.realData[i]._code
-					row['name'] = this.realData[i].en
+					let searchIndex = arr.findIndex((elem) => elem.name == this.realData[i].name_en);
+					row['id'] = this.realData[i].shipId
+					row['name'] = this.realData[i].name_en
 					row['lvl'] = searchIndex > -1 ? arr[searchIndex].lvl : 0
 					result.push(row)
 				}
@@ -580,9 +587,9 @@ export default {
 					var obj = {};
 					var currentline = lines[i].split(",");
 
-					obj['id'] = currentline[0] - 0;
-					obj['name'] = currentline[10];
-					obj['lvl'] = currentline[11] - 0;
+					obj['id'] = currentline[1] - 0;
+					obj['name'] = currentline[2];
+					obj['lvl'] = currentline[12] - 0;
 
 					result.push(obj);
 
@@ -709,7 +716,7 @@ export default {
 			if(localStorage.getItem('retrievedObject') === null){
 				this.fetch1Time()
 			}
-			if(localStorage.getItem('retrievedObject') !== null){
+			else{
 				this.products = this.makeData()
 			}
 			this.loading = false
@@ -720,7 +727,7 @@ export default {
 			let lvls = []
 			for (let i = 0; i < this.realData.length; i++) {
 				row = this.realData[i]
-				row['level'] = lvlsData[i].lvl
+				row['level'] = lvlsData[i]['lvl']
 				lvls.push(row)
 			}
 			return lvls
@@ -893,7 +900,12 @@ export default {
 			
 			this.types = Object.keys(chartsData[2]);
 			let array = Object.keys(chartsData[1]);
-			[array[0], array[1]] = [array[1], array[0]];
+			Array.prototype.move = function(from, to) {
+				this.splice(to, 0, this.splice(from, 1)[0]);
+				return this;
+			};
+			array.move(3,0)
+			array.move(4,0)
 			this.rarities = array;
 			this.affiliations = Object.keys(chartsData[0]);
 
@@ -956,13 +968,15 @@ export default {
 			}
 		},
 		changeMetas(){
-			if(this.checked){
-				this.hideMetas()
-				this.checked = false
-			}
-			else{
-				this.showMetas()
-				this.checked = true
+			if(localStorage.getItem('retrievedObject')){
+				if(this.checked){
+					this.hideMetas()
+					this.checked = false
+				}
+				else{
+					this.showMetas()
+					this.checked = true
+				}
 			}
 		},
 		hideMetas(){
@@ -1006,12 +1020,13 @@ export default {
 		},
 		changeSelectedProducts(confirmLevel) {
 			for (let i = 0; i < this.selectedProducts.length; i++) {
-				if(this.selectedProducts[i].collectionApplicable){
-					this.saveCats(confirmLevel, this.selectedProducts[i]._code)
+				if(this.selectedProducts[i].shipId){
+					this.saveCats(confirmLevel, this.selectedProducts[i].shipId)
 				}
 			}
 			this.changeProductsDialog = false
 			this.selectedProducts = null
+			this.confirmLevel = null
 			this.fetch1Time()
 		},
 		clearData(){
@@ -1042,9 +1057,9 @@ export default {
 				let result = []
 				for (let i = 0; i < this.realData.length; i++) {
 					row = {}
-					let searchIndex = arr.findIndex((elem) => elem.name == this.realData[i].en);
-					row['id'] = this.realData[i]._code
-					row['name'] = this.realData[i].en
+					let searchIndex = arr.findIndex((elem) => elem.name == this.realData[i].name_en);
+					row['id'] = this.realData[i].shipId
+					row['name'] = this.realData[i].name_en
 					row['lvl'] = searchIndex > -1 ? arr[searchIndex].lvl : 0
 					result.push(row)
 				}
@@ -1107,8 +1122,8 @@ export default {
 				let row = {}
 				for (let i = 0; i < this.realData.length; i++) {
 					row = {}
-					row['id'] = this.realData[i]._code
-					row['name'] = this.realData[i].en
+					row['id'] = this.realData[i].shipId
+					row['name'] = this.realData[i].name_en
 					row['lvl'] = this.realData[i].level
 					lvls.push(row)
 				}
@@ -1116,10 +1131,10 @@ export default {
 			}
 		},
 		clearFilter() {
-			console.log(this.products3)
+			this.dtSortField = 'shipId'
 			this.filters = {
 				'global': {value: null, matchMode: FilterMatchMode.CONTAINS},
-				'en': {value: null, matchMode: FilterMatchMode.CONTAINS},
+				'name_en': {value: null, matchMode: FilterMatchMode.CONTAINS},
 				'rarity': {value: null, matchMode: FilterMatchMode.IN},
 				'hullType': {value: null, matchMode: FilterMatchMode.IN},
 				'nationality': {value: null, matchMode: FilterMatchMode.IN},
@@ -1145,18 +1160,7 @@ export default {
 		findIndexById(code) {
 			let index = -1;
 			for (let i = 0; i < this.realData.length; i++) {
-				if (this.realData[i]._code === code) {
-					index = i;
-					break;
-				}
-			}
-			return index;
-		},
-		findNewIndexById(code) {
-			let rawObject = JSON.parse(JSON.stringify(this.products4));
-			let index = -1;
-			for (let i = 0; i < rawObject.length; i++) {
-				if (rawObject[i]._code === code) {
+				if (this.realData[i]['shipId'] == code) {
 					index = i;
 					break;
 				}

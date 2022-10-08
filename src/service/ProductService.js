@@ -1,48 +1,90 @@
 import axios from 'axios';
 
-export default class ProductService {
+export default class ProductService { 
+
+    async getAPI() {
+        return await axios.get('https://parseapi.back4app.com/classes/Ships',
+        {
+            params: {
+                'limit': '9999'
+            },  
+            headers: {
+                'X-Parse-Application-Id': 'FVZ1xLv1XJPKGMhzkVChd6j5F3RIt5R0bGGWZEnE',
+                'X-Parse-REST-API-Key': 'jN4CWZNz0pHVDJSBhxYDyjJBLjZotFtLVoaD1Dp0',
+                'Content-Type': 'application/json'
+            }
+        }).then(d => d.data.results)
+    }   
+
+    async createUser(user) {
+        return await axios.post('https://parseapi.back4app.com/classes/Ships', user,
+        {
+            headers: {
+                'X-Parse-Application-Id': 'FVZ1xLv1XJPKGMhzkVChd6j5F3RIt5R0bGGWZEnE',
+                'X-Parse-REST-API-Key': 'jN4CWZNz0pHVDJSBhxYDyjJBLjZotFtLVoaD1Dp0',
+                'Content-Type': 'application/json'
+            }
+        })
+    }
+
+    async updateUser(id, user) {
+        return await axios.put('https://parseapi.back4app.com/classes/Ships/' + id, user,
+        {
+            headers: {
+                'X-Parse-Application-Id': 'FVZ1xLv1XJPKGMhzkVChd6j5F3RIt5R0bGGWZEnE',
+                'X-Parse-REST-API-Key': 'jN4CWZNz0pHVDJSBhxYDyjJBLjZotFtLVoaD1Dp0',
+                'Content-Type': 'application/json'
+            }
+        })
+    }
+
+    async deleteUser(id) {
+        return await axios.delete('https://parseapi.back4app.com/classes/Ships/' + id, {
+            headers: {
+                'X-Parse-Application-Id': 'FVZ1xLv1XJPKGMhzkVChd6j5F3RIt5R0bGGWZEnE',
+                'X-Parse-REST-API-Key': 'jN4CWZNz0pHVDJSBhxYDyjJBLjZotFtLVoaD1Dp0',
+                'Content-Type': 'application/json'
+            }
+        })
+    }
+    
+    async getRecentShips() {
+        return await axios.get('https://parseapi.back4app.com/classes/newShips',
+        {
+            params: {
+                'limit': '999'
+            },  
+            headers: {
+                'X-Parse-Application-Id': 'FVZ1xLv1XJPKGMhzkVChd6j5F3RIt5R0bGGWZEnE',
+                'X-Parse-REST-API-Key': 'jN4CWZNz0pHVDJSBhxYDyjJBLjZotFtLVoaD1Dp0',
+                'Content-Type': 'application/json'
+            }
+        }).then(d => d.data.results)
+    }
+
+    async createNew(user) {
+        return await axios.post('https://parseapi.back4app.com/classes/newShips', user,
+        {
+            headers: {
+                'X-Parse-Application-Id': 'FVZ1xLv1XJPKGMhzkVChd6j5F3RIt5R0bGGWZEnE',
+                'X-Parse-REST-API-Key': 'jN4CWZNz0pHVDJSBhxYDyjJBLjZotFtLVoaD1Dp0',
+                'Content-Type': 'application/json'
+            }
+        })
+    }
+
+    async deleteNew(id) {
+        return await axios.delete('https://parseapi.back4app.com/classes/newShips/' + id, {
+            headers: {
+                'X-Parse-Application-Id': 'FVZ1xLv1XJPKGMhzkVChd6j5F3RIt5R0bGGWZEnE',
+                'X-Parse-REST-API-Key': 'jN4CWZNz0pHVDJSBhxYDyjJBLjZotFtLVoaD1Dp0',
+                'Content-Type': 'application/json'
+            }
+        })
+    }
 
     getProducts() {
-		return fetch('data/products.json').then(res => res.json()).then(d => d.data);
-    }
-    
-    getShips() { //temp, replaces getProducts()
-		return fetch('data/ships.json').then(res => res.json()).then(d => d.data);
-    }
-
-    getProductsSmall() {
-        return fetch('http://localhost/data/read.php')
-        .then(res => res.json());
-    }
-
-    getNew() {
-        return fetch('http://localhost/data/new_read.php')
-        .then(res => res.json());
-    }
-
-    getNewSmall() { //temp, replaces getNew()
-        return fetch('data/newShips.json')
-        .then(res => res.json()).then(d => d.data);
-    }
-
-    createUser(user){
-        return axios.post('http://localhost/data/create.php', user);
-    }
-
-    updateUser(user){
-        return axios.put('http://localhost/data/update.php', user);
-    }
-    
-    deleteUser(id){
-        axios.delete('http://localhost/data/delete.php', { params: { _code: id } })
-    }
-
-    createNew(user){
-        return axios.post('http://localhost/data/new_create.php', user);
-    }
-    
-    deleteNew(id){
-        axios.delete('http://localhost/data/new_delete.php', { params: { Code: id } })
+		return fetch('data/exp.json').then(res => res.json()).then(d => d.data);
     }
     
 }
