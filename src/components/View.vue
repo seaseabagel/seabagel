@@ -64,7 +64,7 @@
 					<Column :hidden="collHidden" header="Collection" filterField="collectionStat">
 						<template #body="{data}">
 							<div class="flex align-items-center">
-								<span class="image-text">{{data.collectionBonus}}</span>
+								<span class="image-text">+{{data.collectionBonus}}</span>
 								<img :src="'images/icons/' + data.collectionStat + '.png'" :title="data.collectionStat" @click="showTech('collectionStat', data.collectionStat)" :style="(data.collectionApplicable ? '' : 'display: none;')" />
 								<span v-for="item of getBody(data.collectionApplicable)" :key='item'>
 									<img :src="'images/icons/' + item + '.png'" :title="item" @click="showTech('collectionApplicable', item)" style="height: 2.1rem" />
@@ -75,7 +75,7 @@
 					<Column header="Max level" filterField="maxLevelApplicable">
 						<template #body="{data}">
 							<div class="flex align-items-center">
-								<span class="image-text">{{data.maxLevelBonus}}</span>
+								<span class="image-text">+{{data.maxLevelBonus}}</span>
 								<img :src="'images/icons/' + data.maxLevelStat + '.png'" :title="data.maxLevelStat" @click="showTech('maxLevelStat', data.maxLevelStat)" :style="(data.collectionApplicable ? '' : 'display: none;')" />
 								<span v-for="item of getBody(data.maxLevelApplicable)" :key='item'>
 									<img :src="'images/icons/' + item + '.png'" :title="item" @click="showTech('maxLevelApplicable', item)" style="height: 2.1rem" />
