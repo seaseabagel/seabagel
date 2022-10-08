@@ -30,7 +30,7 @@
                         </template>
 
                         <Column selectionMode="multiple" style="width: 3rem" :exportable="false"></Column>
-                        <Column field="shipId" header="Id" :sortable="true" style="min-width:4rem"></Column>
+                        <Column field="shipId" header="id" :sortable="true" style="min-width:4rem"></Column>
                         <Column field="name_en" header="Name" :sortable="true" style="min-width:16rem"></Column>
                         <Column field="hullType" header="Rarity" :sortable="true" style="min-width:10rem"></Column>
                         <Column field="rarity" header="Rarity" :sortable="true" style="min-width:10rem">
@@ -124,8 +124,8 @@
 
     <Dialog v-model:visible="productDialog" :style="{width: '450px'}" header="Details" :modal="true" class="p-fluid" @keydown.enter="saveProduct"  @keydown.esc="hideDialog">
         <div class="field">
-            <label for="Id">Id</label>
-            <InputText id="Id" v-model.trim="product.shipId" required="true" autofocus :class="{'p-invalid': submitted && !product.shipId}" />
+            <label for="Id">id</label>
+            <InputText id="id" v-model.trim="product.shipId" required="true" autofocus :class="{'p-invalid': submitted && !product.shipId}" />
             <small class="p-error" v-if="submitted && !product.shipId">Id is required.</small>
         </div>
         
