@@ -30,7 +30,7 @@
                         </template>
 
                         <Column selectionMode="multiple" style="width: 3rem" :exportable="false"></Column>
-                        <Column field="shipId" header="id" :sortable="true" style="min-width:4rem"></Column>
+                        <Column field="shipId" header="ID" :sortable="true" style="min-width:4rem"></Column>
                         <Column field="name_en" header="Name" :sortable="true" style="min-width:16rem"></Column>
                         <Column field="hullType" header="Rarity" :sortable="true" style="min-width:10rem"></Column>
                         <Column field="rarity" header="Rarity" :sortable="true" style="min-width:10rem">
@@ -87,7 +87,7 @@
                     <DataTable :value="products3" :rows="5" sortField="shipId" :sortOrder="1" v-model:selection="selectedSetNew" :paginator="true" responsiveLayout="scroll">
 
                         <Column selectionMode="multiple" style="width: 3rem"></Column>
-                        <Column field="shipId" header="Id" :sortable="true"></Column>
+                        <Column field="shipId" header="ID" :sortable="true"></Column>
                         <Column field="name" header="Name" :sortable="true"></Column>
                         <template #empty>
                             No new ships
@@ -100,7 +100,7 @@
         <div class="col-12" v-else>
             <div class="grid justify-content-center p-2 lg:p-0" style="min-width:80%">
                 <div class="col-12 mt-5 xl:mt-0 text-center">
-                    <img src="layout/images/logo-orange.svg" alt="Sakai logo" class="mb-5" style="width:81px; height:60px;">
+                    <img src="images/logo-dark.svg" alt="Logo" class="mb-5" style="width:81px; height:60px;">
                 </div>
                 <div class="col-12 xl:col-6" style="border-radius:56px; padding:0.3rem; background: linear-gradient(180deg, rgba(247, 149, 48, 0.4) 10%, rgba(247, 149, 48, 0) 30%);">
                     <div class="h-full w-full m-0 py-7 px-4" style="border-radius:53px; background: linear-gradient(180deg, var(--surface-50) 38.9%, var(--surface-0));">
@@ -124,8 +124,8 @@
 
     <Dialog v-model:visible="productDialog" :style="{width: '450px'}" header="Details" :modal="true" class="p-fluid" @keydown.enter="saveProduct"  @keydown.esc="hideDialog">
         <div class="field">
-            <label for="Id">id</label>
-            <InputText id="id" v-model.trim="product.shipId" required="true" autofocus :class="{'p-invalid': submitted && !product.shipId}" />
+            <label for="Id">Id</label>
+            <InputText id="Id" v-model.trim="product.shipId" required="true" autofocus :class="{'p-invalid': submitted && !product.shipId}" />
             <small class="p-error" v-if="submitted && !product.shipId">Id is required.</small>
         </div>
         
