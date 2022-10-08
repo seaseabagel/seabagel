@@ -2,7 +2,7 @@
 	<div class="layout-topbar">
 		<router-link to="/" class="layout-topbar-logo">
 			<img alt="Logo" :src="topbarImage()" />
-			<span>ALFT</span>
+			<span>FTTracker</span>
 		</router-link>
 		<button  v-if="isAuthenticated" class="p-link layout-menu-button layout-topbar-button" @click="onMenuToggle">
 			<i class="pi pi-bars"></i>

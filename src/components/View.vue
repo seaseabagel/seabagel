@@ -22,7 +22,7 @@
 						</div>
 					</template>
 					<Column selectionMode="multiple" style="width: 3rem" />
-					<Column field="shipId" header="Id" :sortable="true" />
+					<Column field="shipId" header="id" :sortable="true" />
 					<Column field="name_en" header="Name" :sortable="true">
 						<template #filter>
 							<InputText type="text" v-model="filters['name_en'].value" class="p-column-filter" :placeholder="`Search by name - `" style="min-width: 9rem;" />
