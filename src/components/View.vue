@@ -22,7 +22,7 @@
 						</div>
 					</template>
 					<Column selectionMode="multiple" style="width: 3rem" />
-					<Column field="shipId" header="id" :sortable="true" />
+					<Column field="shipId" header="ID" :sortable="true" />
 					<Column field="name_en" header="Name" :sortable="true">
 						<template #filter>
 							<InputText type="text" v-model="filters['name_en'].value" class="p-column-filter" :placeholder="`Search by name - `" style="min-width: 9rem;" />
@@ -64,7 +64,7 @@
 					<Column :hidden="collHidden" header="Collection" filterField="collectionStat">
 						<template #body="{data}">
 							<div class="flex align-items-center">
-								<span class="image-text">+{{data.collectionBonus}}</span>
+								<span class="image-text">{{addPlusSign(data.collectionBonus)}}</span>
 								<img :src="'images/icons/' + data.collectionStat + '.png'" :title="data.collectionStat" @click="showTech('collectionStat', data.collectionStat)" :style="(data.collectionApplicable ? '' : 'display: none;')" />
 								<span v-for="item of getBody(data.collectionApplicable)" :key='item'>
 									<img :src="'images/icons/' + item + '.png'" :title="item" @click="showTech('collectionApplicable', item)" style="height: 2.1rem" />
@@ -505,8 +505,7 @@ export default {
 	},
 	methods: {
 		addPlusSign(data){
-			let Data = data !== null ? '+ ' + data : null
-			return Data
+			return data !== null ? '+ ' + data : null
 		},
 		sortData(){
 			let array = this.realData
