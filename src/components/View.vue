@@ -75,7 +75,7 @@
 					<Column header="Max level" filterField="maxLevelApplicable">
 						<template #body="{data}">
 							<div class="flex align-items-center">
-								<span class="image-text">+{{data.maxLevelBonus}}</span>
+								<span class="image-text">{{addPlusSign(data.maxLevelBonus)}}</span>
 								<img :src="'images/icons/' + data.maxLevelStat + '.png'" :title="data.maxLevelStat" @click="showTech('maxLevelStat', data.maxLevelStat)" :style="(data.collectionApplicable ? '' : 'display: none;')" />
 								<span v-for="item of getBody(data.maxLevelApplicable)" :key='item'>
 									<img :src="'images/icons/' + item + '.png'" :title="item" @click="showTech('maxLevelApplicable', item)" style="height: 2.1rem" />
@@ -504,6 +504,10 @@ export default {
 		});
 	},
 	methods: {
+		addPlusSign(data){
+			let Data = data !== null ? '+ ' + data : null
+			return Data
+		},
 		sortData(){
 			let array = this.realData
 			array.sort(function(a, b) {

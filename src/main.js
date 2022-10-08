@@ -117,7 +117,7 @@ app.use(
     createAuth0({
       domain: "dev-8p4zkfbq.us.auth0.com",
       client_id: "sblygRaMfYT4H3CwcjYNNtAIXWcXhdGJ",
-      redirect_uri: "https://not-test-vue-tracker.onrender.com/"
+      redirect_uri: "https://fttracker.onrender.com/"
     })
   );
 app.directive('tooltip', Tooltip);
