@@ -42,10 +42,10 @@
                         <Column header="Collection">
                             <template #body="{data}">
                                 <div class="flex align-items-center">
-                                    <span class="image-text">{{data.collectionBonus}}</span>
-                                    <img :src="'demo/data/img/' + data.collectionStat + '.png'" :title="data.collectionStat" :style="(data.collectionApplicable ? '' : 'display: none;')" />
+                                    <span class="image-text">{{addPlusSign(data.collectionBonus)}}</span>
+                                    <img :src="'images/icons/' + data.collectionStat + '.png'" :title="data.collectionStat" :style="(data.collectionApplicable ? '' : 'display: none;')" />
                                     <span v-for="item of getBody(data.collectionApplicable)" :key='item'>
-                                        <img :src="'demo/data/img/' + item + '.png'" :title="item" />
+                                        <img :src="'images/icons/' + item + '.png'" :title="item" />
                                     </span>
                                 </div>
                             </template>
@@ -53,10 +53,10 @@
                         <Column header="Max level">
                             <template #body="{data}">
                                 <div class="flex align-items-center">
-                                    <span class="image-text">{{data.maxLevelBonus}}</span>
-                                    <img :src="'demo/data/img/' + data.maxLevelStat + '.png'" :title="data.maxLevelStat" :style="(data.collectionApplicable ? '' : 'display: none;')" />
+                                    <span class="image-text">{{addPlusSign(data.maxLevelBonus)}}</span>
+                                    <img :src="'images/icons/' + data.maxLevelStat + '.png'" :title="data.maxLevelStat" :style="(data.collectionApplicable ? '' : 'display: none;')" />
                                     <span v-for="item of getBody(data.maxLevelApplicable)" :key='item'>
-                                        <img :src="'demo/data/img/' + item + '.png'" :title="item" />
+                                        <img :src="'images/icons/' + item + '.png'" :title="item" />
                                     </span>
                                 </div>
                             </template>
@@ -160,11 +160,11 @@
         <div class="flex align-content-stretch flex-wrap">
             <div class="field">
                 <label for="Tech points">collectionBonus</label>
-                <InputText id="Tech points" v-model.trim="product.collectionBonus"  />
+                <InputText id="Tech points" v-model="product.collectionBonus"  />
             </div>
             <div class="field">
                 <label for="Tech points">maxLevelBonus</label>
-                <InputText id="Tech points" v-model.trim="product.maxLevelBonus" />
+                <InputText id="Tech points" v-model="product.maxLevelBonus" />
             </div>
         </div>
         
@@ -190,7 +190,7 @@
             <Dropdown :options="applicables" v-model="product.collectionApplicable" placeholder="Select stat">
                 <template #option="slotProps">
                         <span v-for="item of getBody(slotProps.option)" :key='item'>
-                            <img :src="'demo/data/img/' + item + '.png'" :title="item" style="margin-left: 0.4rem;" />
+                            <img :src="'images/icons/' + item + '.png'" :title="item" style="margin-left: 0.4rem;" />
                         </span>
                 </template>
             </Dropdown>
@@ -201,7 +201,7 @@
             <Dropdown :options="applicables" v-model="product.maxLevelApplicable" placeholder="Select stat">
                 <template #option="slotProps">
                     <span v-for="item of getBody(slotProps.option)" :key='item'>
-                        <img :src="'demo/data/img/' + item + '.png'" :title="item" style="margin-left: 0.4rem;" />
+                        <img :src="'images/icons/' + item + '.png'" :title="item" style="margin-left: 0.4rem;" />
                     </span>
                 </template>
             </Dropdown>
@@ -292,6 +292,9 @@ export default {
         this.unpackTypes();
     },
     methods: {
+		addPlusSign(data){
+			return data !== null ? '+ ' + data : null
+		},
         formatDate(date){
             const obj = new Date(date);
             return obj.toLocaleString()
@@ -351,8 +354,8 @@ export default {
                     this.product.nationality = this.product.nationality.value ? this.product.nationality.value : this.product.nationality;
                     this.product.collectionStat = this.product.collectionStat ? this.product.collectionStat : null;
                     this.product.maxLevelStat = this.product.maxLevelStat ? this.product.maxLevelStat : null;
-                    this.product.collectionBonus = this.product.collectionBonus ? '+' + this.product.collectionBonus : null;
-                    this.product.maxLevelBonus = this.product.maxLevelBonus ? '+' + this.product.maxLevelBonus : null;
+                    this.product.collectionBonus = this.product.collectionBonus ? this.product.collectionBonus : null;
+                    this.product.maxLevelBonus = this.product.maxLevelBonus ? this.product.maxLevelBonus : null;
                     this.productService.updateUser(this.product.objectId, {
                         shipId:this.product.shipId,
                         name_en:this.product.name_en,
@@ -377,8 +380,8 @@ export default {
                     this.product.nationality = this.product.nationality.value ? this.product.nationality.value : this.product.nationality;
                     this.product.collectionStat = this.product.collectionStat ? this.product.collectionStat : null;
                     this.product.maxLevelStat = this.product.maxLevelStat ? this.product.maxLevelStat : null;
-                    this.product.collectionBonus = this.product.collectionBonus ? '+' + this.product.collectionBonus : null;
-                    this.product.maxLevelBonus = this.product.maxLevelBonus ? '+' + this.product.maxLevelBonus : null;
+                    this.product.collectionBonus = this.product.collectionBonus ? this.product.collectionBonus : null;
+                    this.product.maxLevelBonus = this.product.maxLevelBonus ? this.product.maxLevelBonus : null;
                     this.productService.createUser({
                         shipId:this.product.shipId,
                         name_en:this.product.name_en,
@@ -430,8 +433,6 @@ export default {
         },
         editProduct(product) {
             this.product = {...product};
-            this.product.collectionBonus = this.product.collectionBonus ? this.product.collectionBonus.substring(1) : ''
-            this.product.maxLevelBonus = this.product.maxLevelBonus ? this.product.maxLevelBonus.substring(1) : ''
             this.productDialog = true;
         },
         confirmDeleteProduct(product) {
@@ -507,15 +508,6 @@ export default {
             this.filters = {
                 'global': {value: null, matchMode: FilterMatchMode.CONTAINS},
             }
-        },
-        createID(){
-            let indx = -1;
-            for (let i = 0; i < this.products3.length; i++) {
-                if (this.products3[i].ID > indx) {
-                    indx = this.products3[i].ID;
-                }
-            }
-            return indx + 1;
         }
     }
 }
