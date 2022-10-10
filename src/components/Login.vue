@@ -36,7 +36,7 @@
           loginWithRedirect();
         },
         logout: () => {
-          logout({ returnTo: 'https://not-test-vue-tracker.onrender.com/login' });
+          logout({ returnTo: 'https://fttracker.onrender.com/login' });
         },
         isAuthenticated,
         user
