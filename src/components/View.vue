@@ -858,10 +858,10 @@ export default {
 
 				if(Object.keys(countType)[j] === 'Battlecruiser'){
 					const cloneMaxLevel = Object.assign({}, maxLevelRow);
-					cloneMaxLevel["type"] = 'Aviation Battleship';
+					cloneMaxLevel["type"] = 'Aviation battleship';
 					maxLevelTable.maxLevelRows.push(cloneMaxLevel);
 					const cloneCollection = Object.assign({}, collLevelRow);
-					cloneCollection["type"] = 'Aviation Battleship';
+					cloneCollection["type"] = 'Aviation battleship';
 					collLevelTable.collLevelRows.push(cloneCollection);
 				}
 				collLevelRow = {}
