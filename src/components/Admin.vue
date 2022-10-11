@@ -307,12 +307,17 @@ export default {
             this.categories = Object.keys(chartsData[4]);
             this.applicables = Object.keys(chartsData[9]);
         },
-        getBody(code){
-            if(code){
-                return code.replace(/"/g, "").split(",")
-            }
-            return null
-        },
+		getBody(code){
+			if(code){
+				if(code.includes('.')){
+					return code.replace(/"/g, "").split(".")
+				}
+				return code.replace(/"/g, "").split(",")
+			}
+			if(code === 'null') {
+				return null
+			}
+		},
         fetchData(){
             if(this.isAuthenticated){
                 this.productService.getAPI().then(data => this.products = data);
