@@ -361,6 +361,8 @@ export default {
                     this.product.maxLevelStat = this.product.maxLevelStat ? this.product.maxLevelStat : null;
                     this.product.collectionBonus = this.product.collectionBonus ? this.product.collectionBonus : null;
                     this.product.maxLevelBonus = this.product.maxLevelBonus ? this.product.maxLevelBonus : null;
+                    this.product.collectionApplicable = this.product.collectionApplicable ? this.product.collectionApplicable : null;
+                    this.product.maxLevelApplicable = this.product.maxLevelApplicable ? this.product.maxLevelApplicable : null;
                     this.productService.updateUser(this.product.objectId, {
                         shipId:this.product.shipId,
                         name_en:this.product.name_en,
@@ -387,6 +389,8 @@ export default {
                     this.product.maxLevelStat = this.product.maxLevelStat ? this.product.maxLevelStat : null;
                     this.product.collectionBonus = this.product.collectionBonus ? this.product.collectionBonus : null;
                     this.product.maxLevelBonus = this.product.maxLevelBonus ? this.product.maxLevelBonus : null;
+                    this.product.collectionApplicable = this.product.collectionApplicable ? this.product.collectionApplicable : null;
+                    this.product.maxLevelApplicable = this.product.maxLevelApplicable ? this.product.maxLevelApplicable : null;
                     this.productService.createUser({
                         shipId:this.product.shipId,
                         name_en:this.product.name_en,
@@ -487,7 +491,7 @@ export default {
             this.products = this.products.filter(val => !this.selectedProducts.includes(val));
             var i;
             for (i = 0; i < this.selectedProducts.length; i++) {
-                this.deleteProduct(this.selectedProducts[i].shipId);
+                this.deleteProduct(this.selectedProducts[i].objectId);
             }
             this.deleteProductsDialog = false;
             this.selectedProducts = null;
@@ -592,6 +596,4 @@ img {
     background: linear-gradient(120deg,#fbffca,#baffbf,#a7efff,#ffabff) !important;
     color: #23547b;
 }
-
 </style>
-
