@@ -1246,6 +1246,9 @@ img {
 	color: #00B050;
 	display:inline-block;
 }
+.image-text {
+	white-space:nowrap
+}
 ::v-deep(.row-accessories) {
 	background-color: rgba(0,0,0,.15) !important;
 }

@@ -1,7 +1,7 @@
 <template>
 	<div class="layout-topbar">
 		<router-link to="/" class="layout-topbar-logo">
-			<img alt="Logo" :src="topbarImage()" />
+			<img alt="Logo" style="pointer-events: none;" :src="topbarImage()" />
 			<span>FTTracker</span>
 		</router-link>
 		<button  v-if="isAuthenticated" class="p-link layout-menu-button layout-topbar-button" @click="onMenuToggle">
