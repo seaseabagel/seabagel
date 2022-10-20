@@ -1153,9 +1153,10 @@ export default {
 		levelClass(data) {
 			return [
 				{
-					'zero': data.level === 0,
-					'inProcess': data.level > 0 && data.level < 70,
-					'limit': data.level >= 70 && data.level < 120,
+					'zero': data.level == 0,
+					'started': data.level > 0 && data.level < 70,
+					'limit': data.level >= 70 && data.level < 100,
+					'inProcess': data.level >= 100 && data.level < 120,
 					'a120': data.level >= 120
 				 }
 			];
@@ -1231,7 +1232,7 @@ img {
 	color: #CCC;
 	display:inline-block;
 }
-.inProcess {
+.started {
 	font-weight: 600;
 	color: #e91e63;
 	display:inline-block;
@@ -1239,6 +1240,11 @@ img {
 .limit {
 	font-weight: 600;
 	color: #ad7e2d;
+	display:inline-block;
+}
+.inProcess {
+	font-weight: 600;
+	color: #339999;
 	display:inline-block;
 }
 .a120 {
