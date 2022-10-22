@@ -137,7 +137,7 @@
 
         <div class="field">
             <label for="Type" class="mb-3">Type</label>
-            <Dropdown id="Type" v-model="product.hullType" required="true" :options="types" placeholder="Select a Type"/>
+            <Dropdown id="Type" v-model="product.hullType" required="true" :options="types" :editable="true" placeholder="Select a Type"/>
         </div>
 
         <div class="field">
