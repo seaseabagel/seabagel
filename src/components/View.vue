@@ -256,6 +256,7 @@ import EventBus from '../AppEventBus';
 export default {
 	data() {
 		return {
+			hiddenLabel: 0,
 			dtSortField: null,
 			API: null,
 			collHidden: null,
@@ -297,7 +298,7 @@ export default {
 					label: 'Show hidden ships',
 					icon: 'pi pi-plus',
 					command: () => {
-						this.changeMetas();
+						this.changeHiddenLabel();
 					}
 				},
 				{
@@ -504,6 +505,31 @@ export default {
 		});
 	},
 	methods: {
+		changeHiddenLabel(){
+			this.hiddenLabel = {
+				0: 1,
+				1: 2,
+				2: 0,
+			}[this.hiddenLabel] || 0;
+			this.hideShips(this.hiddenLabel);
+			this.packUserSettings()
+		},
+		hideShips(x){
+			switch(x) {
+				case 0:
+					this.showAll();
+					break;
+				case 1:
+					this.showTechFull();
+					break;
+				case 2: 
+					this.showTechLess();
+					break;
+				default:
+					showAll();
+					break;
+			}
+		},
 		addPlusSign(data){
 			return data !== null ? '+ ' + data : null
 		},
@@ -590,9 +616,9 @@ export default {
 					var obj = {};
 					var currentline = lines[i].split(",");
 
-					obj['id'] = currentline[1] - 0;
-					obj['name'] = currentline[2];
-					obj['lvl'] = currentline[12] - 0;
+					obj['id'] = currentline[0];
+					obj['name'] = currentline[1];
+					obj['lvl'] = currentline[2];
 
 					result.push(obj);
 
@@ -608,7 +634,7 @@ export default {
 			if(localStorage.getItem('retrievedObject') !== null){
 				let row = []
 				let rows = []
-				var ships = this.makeData()
+				let ships = JSON.parse(localStorage.getItem('lvls'))
 				rows.push(JSON.parse(JSON.stringify(Object.keys(ships[1]))))
 				for (let i = 0; i < ships.length; i++) {
 					row = []
@@ -641,7 +667,7 @@ export default {
 			};
 
 			var csvFile = '';
-			for (var i = 0; i < rows.length-1; i++) {
+			for (var i = 0; i < rows.length; i++) {
 				csvFile += processRow(rows[i]);
 			}
 
@@ -666,6 +692,7 @@ export default {
 			this.filterDisplayValue = retrievedUserSettings.filterDisplayValue
 			this.tableClass = retrievedUserSettings.tableClass
 			this.checked = retrievedUserSettings.checked
+			this.hideShips(retrievedUserSettings.hiddenLabel)
 			this.setupColl(retrievedUserSettings.collHidden)
 		},
 		packUserSettings(){
@@ -673,6 +700,7 @@ export default {
 			this.userSettings.filterDisplayValue = this.filterDisplayValue
 			this.userSettings.tableClass = this.tableClass
 			this.userSettings.checked = this.checked
+			this.userSettings.hiddenLabel = this.hiddenLabel
 			localStorage.setItem('userSettings', JSON.stringify(this.userSettings));
 		},
 		sort(arr){
@@ -741,7 +769,6 @@ export default {
 			}
 			if(localStorage.getItem('retrievedObject') !== null){
 				this.unpackUserSettings()
-				this.changeMetas()
 			}
 		},
 		fetch1Time(){
@@ -875,9 +902,6 @@ export default {
 			this.fetchData()
 		},
 		fetchData(){
-			if(localStorage.getItem('retrievedObject') !== null){
-				this.products = this.makeData()
-			}
 			let notNullLength = 0;
 			let sum = [];
 			let sum120 = [];
@@ -970,31 +994,6 @@ export default {
 				],
 			}
 		},
-		changeMetas(){
-			if(localStorage.getItem('retrievedObject')){
-				if(this.checked){
-					this.hideMetas()
-					this.checked = false
-				}
-				else{
-					this.showMetas()
-					this.checked = true
-				}
-			}
-		},
-		hideMetas(){
-			for (var i = this.products.length - 1; i >= 0; i--) {
-				if (this.products[i]["maxLevelStat"] === null) {
-					this.products.splice(i, 1);
-				}
-			}
-			this.checked = true
-			this.packUserSettings()
-		},
-		showMetas(){
-			this.products = this.makeData()
-			this.packUserSettings()
-		},
 		changeTableDisplay(){
 			this.tableClass = this.tableClass === "p-datatable-sm" ? "p-datatable" : "p-datatable-sm"
 			this.packUserSettings()
@@ -1007,8 +1006,21 @@ export default {
 			this.filters[filter] = {value: type, matchMode: FilterMatchMode.CONTAINS};
 			window.scrollTo(0,0);
 		},
+		showAll(){
+			this.filters['collectionBonus'] = {value: null, matchMode: FilterMatchMode.CONTAINS};
+		},
+		showTechFull(){
+			this.filters['collectionBonus'] = {operator: FilterOperator.OR, constraints: [
+                {value: '1', matchMode: FilterMatchMode.EQUALS},
+                {value: '2', matchMode: FilterMatchMode.EQUALS}]}
+		},
+		showTechLess(){
+			this.filters['collectionBonus'] = {operator: FilterOperator.AND, constraints: [
+                {value: '1', matchMode: FilterMatchMode.NOT_EQUALS},
+                {value: '2', matchMode: FilterMatchMode.NOT_EQUALS}]}
+		},
 		getBody(code){
-			if(code){
+			if(code){	
 				if(code.includes('.')){
 					return code.replace(/"/g, "").split(".")
 				}
@@ -1088,14 +1100,12 @@ export default {
 					}
 				}
 				if(localStorage.getItem('retrievedObject') !== null){
-					this.products = this.makeData();
 					lvlsData[this.findIndexById(y)]["lvl"] = x - 0;
 					this.products[this.findIndexById(y)]["level"] = x - 0;
 					localStorage.setItem("lvls", JSON.stringify(lvlsData));
 					this.getNewShips();
 				}
 				else{
-					this.products = this.realData;
 					lvlsData[this.findIndexById(y)]["lvl"] = x - 0;
 					this.products[this.findIndexById(y)]["level"] = x - 0;
 					localStorage.setItem("retrievedObject", JSON.stringify('true'));
@@ -1149,6 +1159,7 @@ export default {
 				'maxLevelStat': {value: null, matchMode: FilterMatchMode.CONTAINS},
 				'level': {value: null, matchMode: FilterMatchMode.EQUALS}
 			}
+			this.unpackUserSettings()
 		},
 		levelClass(data) {
 			return [
