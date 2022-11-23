@@ -7,6 +7,9 @@
 		<button  v-if="isAuthenticated" class="p-link layout-menu-button layout-topbar-button" @click="onMenuToggle">
 			<i class="pi pi-bars"></i>
 		</button>
+		<router-link to="/ehp" class="layout-topbar-logo">
+			<span>eHP Chart</span>
+		</router-link>
 		<button class="p-link layout-topbar-menu-button layout-topbar-button"
 			v-styleclass="{ selector: '@next', enterClass: 'hidden', enterActiveClass: 'scalein', 
 			leaveToClass: 'hidden', leaveActiveClass: 'fadeout', hideOnOutsideClick: true}">

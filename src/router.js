@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from "vue-router";
     import View from "@/components/View"
     import Login from "@/components/Login"
     import Admin from "@/components/Admin"
+    import Ehp from "@/components/Ehp"
     import App from './App.vue';
 
     export const router = createRouter({
@@ -16,6 +17,11 @@ import { createRouter, createWebHistory } from "vue-router";
                     path: '',
                     name: 'dashboard',
                     component: View
+                },
+                { 
+                    path: "/ehp",
+                    name: 'eHP',
+                    component: Ehp
                 },
                 { 
                     path: "/login",

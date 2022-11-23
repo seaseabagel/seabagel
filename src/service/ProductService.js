@@ -86,6 +86,18 @@ export default class ProductService {
     getProducts() {
 		return fetch('data/exp.json').then(res => res.json()).then(d => d.data);
     }
+
+    getEhp() {
+		return fetch('data/eHP120.json').then(res => res.json()).then(d => d.data);
+    }
+
+    getEhp125() {
+		return fetch('data/eHP125.json').then(res => res.json()).then(d => d.data);
+    }
+
+    getNodes() {
+		return fetch('data/nodes.json').then(res => res.json()).then(d => d.data);
+    }
     
 }
     
