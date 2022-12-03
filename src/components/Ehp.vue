@@ -5,7 +5,7 @@
                 <h5>Ship</h5>
                     <DataTable id="dt" ref="dt" stripedRows :value="ehp120" :paginator="true" :rows="10" class="p-datatable-sm" :rowsPerPageOptions="[10,25,50]"
 					paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-					responsiveLayout="scroll" v-model:filters="filters" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} vanguard ships" >
+					responsiveLayout="scroll" v-model:filters="filters" :loading="loading" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} vanguard ships" >
 					<template #header>
 						<div class="flex align-items-center">
 							<span class="p-input-icon-left flex align-items-center">
@@ -60,6 +60,7 @@ export default {
     productService: null,
     data() {
         return {
+            loading: false,
             is125: false,
             selectedEnemies: [],
             selectedEnemiesLabels: [],
@@ -132,12 +133,16 @@ export default {
 		EventBus.off('theme-change', this.themeChangeListener);
 	},
     mounted() {
+        this.loading = true;
         this.productService.getEhp().then(data => {this.ehp120 = data 
         this.defaultDatasetHandler()});
-        this.productService.getEhp125().then(data => {this.ehp125 = data});
+        this.productService.getEhp125().then(data => {
+            this.ehp125 = data 
+            this.loading = false
+        });
         this.productService.getNodes().then(data => {this.nodes = data});
 		this.themeChangeListener = () => {
-			this.refreshOptions()
+			this.refreshOptions();
 		};
 		EventBus.on('theme-change', this.themeChangeListener);
     },
