@@ -15,7 +15,7 @@
                     {"label": "Navigator III Norm4", "data": "Navigator III Norm4", "key": "0-1-3"},
                     {"label": "Navigator III Norm5", "data": "Navigator III Norm5", "key": "0-1-4"},
                     {"label": "Navigator III AP1", "data": "Navigator III AP1", "key": "0-1-5"},
-                    {"label": "Navigator III AP2", "data": "Navigator III AP2", "key": "0-1-5"}
+                    {"label": "Navigator III AP2", "data": "Navigator III AP2", "key": "0-1-6"}
                 ]},
                 {"label": "Smasher", "data": "Smasher", "key": "0-2", "children":[
                     {"label": "Smasher III Normal1", "data": "Smasher III Normal1", "key": "0-2-0"},
