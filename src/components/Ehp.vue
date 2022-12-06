@@ -160,7 +160,12 @@ export default {
                 labels.push(tempNodes[element.slice(0,1)].children[element.slice(2,3)].children[element.slice(4,5)].label)
             })
             this.selectedEnemiesLabels = JSON.parse(JSON.stringify(labels))
-            this.defaultDataHandler(this.selectedShips, this.selectedEnemiesLabels)
+            if(this.selectedShips.length <= 0){
+                this.defaultDataHandler(this.defaultShips, this.selectedEnemiesLabels)
+            }
+            else {
+                this.defaultDataHandler(this.selectedShips, this.selectedEnemiesLabels)
+            }
         },
         handleChartData(data){
             let res = {name: data, level: this.is125}
