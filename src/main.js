@@ -7,7 +7,7 @@ import './assets/demo/flags/flags.css';
 import { createAuth0 } from '@auth0/auth0-vue';
 
 import { createApp, reactive } from "vue";
-import AppWrapper from "./AppWrapper.vue"
+import AppWrapper from "./AppWrapper.vue";
 import { router } from "./router";
 import PrimeVue from "primevue/config";
 import AutoComplete from 'primevue/autocomplete';
@@ -106,6 +106,9 @@ import TriStateCheckbox from 'primevue/tristatecheckbox';
 import VirtualScroller from 'primevue/virtualscroller';
 
 const app = createApp(AppWrapper);
+const domain = process.env.VUE_APP_DOMAIN;
+const client_id = process.env.VUE_APP_CLIENT_ID;
+const redirect_uri = process.env.VUE_APP_REDIRECT_URI;
 
 app.config.globalProperties.$appState = reactive({ theme: 'lara-light-indigo', darkTheme: false });
 
@@ -115,9 +118,9 @@ app.use(ToastService);
 app.use(router);
 app.use(
     createAuth0({
-      domain: "dev-8p4zkfbq.us.auth0.com",
-      client_id: "sblygRaMfYT4H3CwcjYNNtAIXWcXhdGJ",
-      redirect_uri: "https://fttracker.onrender.com/login"
+      domain: domain,
+      client_id: client_id,
+      redirect_uri: redirect_uri
     })
   );
 app.directive('tooltip', Tooltip);
