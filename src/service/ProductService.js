@@ -2,11 +2,12 @@ import axios from 'axios';
 
 const app_id = process.env.VUE_APP_APP_ID
 const api_key = process.env.VUE_APP_REST_API_KEY
+const url = process.env.VUE_APP_URL
 
 export default class ProductService { 
 
     async getAPI() {
-        return await axios.get('https://parseapi.back4app.com/classes/Ships',
+        return await axios.get(url + 'Ships',
         {
             params: {
                 'limit': '9999'
@@ -20,7 +21,7 @@ export default class ProductService {
     }   
 
     async createUser(user) {
-        return await axios.post('https://parseapi.back4app.com/classes/Ships', user,
+        return await axios.post(url + 'Ships', user,
         {
             headers: {
                 'X-Parse-Application-Id': app_id,
@@ -31,7 +32,7 @@ export default class ProductService {
     }
 
     async updateUser(id, user) {
-        return await axios.put('https://parseapi.back4app.com/classes/Ships/' + id, user,
+        return await axios.put(url + 'Ships/' + id, user,
         {
             headers: {
                 'X-Parse-Application-Id': app_id,
@@ -42,7 +43,7 @@ export default class ProductService {
     }
 
     async deleteUser(id) {
-        return await axios.delete('https://parseapi.back4app.com/classes/Ships/' + id, {
+        return await axios.delete(url + 'Ships/' + id, {
             headers: {
                 'X-Parse-Application-Id': app_id,
                 'X-Parse-REST-API-Key': api_key,
@@ -52,7 +53,7 @@ export default class ProductService {
     }
     
     async getRecentShips() {
-        return await axios.get('https://parseapi.back4app.com/classes/newShips',
+        return await axios.get(url + 'newShips',
         {
             params: {
                 'limit': '999'
@@ -66,7 +67,7 @@ export default class ProductService {
     }
 
     async createNew(user) {
-        return await axios.post('https://parseapi.back4app.com/classes/newShips', user,
+        return await axios.post(url + 'newShips', user,
         {
             headers: {
                 'X-Parse-Application-Id': app_id,
@@ -77,7 +78,7 @@ export default class ProductService {
     }
 
     async deleteNew(id) {
-        return await axios.delete('https://parseapi.back4app.com/classes/newShips/' + id, {
+        return await axios.delete(url + 'newShips/' + id, {
             headers: {
                 'X-Parse-Application-Id': app_id,
                 'X-Parse-REST-API-Key': api_key,
