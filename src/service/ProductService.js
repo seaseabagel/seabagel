@@ -1,5 +1,8 @@
 import axios from 'axios';
 
+const app_id = process.env.VUE_APP_APP_ID
+const api_key = process.env.VUE_APP_REST_API_KEY
+
 export default class ProductService { 
 
     async getAPI() {
@@ -9,8 +12,8 @@ export default class ProductService {
                 'limit': '9999'
             },  
             headers: {
-                'X-Parse-Application-Id': 'FVZ1xLv1XJPKGMhzkVChd6j5F3RIt5R0bGGWZEnE',
-                'X-Parse-REST-API-Key': 'jN4CWZNz0pHVDJSBhxYDyjJBLjZotFtLVoaD1Dp0',
+                'X-Parse-Application-Id': app_id,
+                'X-Parse-REST-API-Key': api_key,
                 'Content-Type': 'application/json'
             }
         }).then(d => d.data.results)
@@ -20,8 +23,8 @@ export default class ProductService {
         return await axios.post('https://parseapi.back4app.com/classes/Ships', user,
         {
             headers: {
-                'X-Parse-Application-Id': 'FVZ1xLv1XJPKGMhzkVChd6j5F3RIt5R0bGGWZEnE',
-                'X-Parse-REST-API-Key': 'jN4CWZNz0pHVDJSBhxYDyjJBLjZotFtLVoaD1Dp0',
+                'X-Parse-Application-Id': app_id,
+                'X-Parse-REST-API-Key': api_key,
                 'Content-Type': 'application/json'
             }
         })
@@ -31,8 +34,8 @@ export default class ProductService {
         return await axios.put('https://parseapi.back4app.com/classes/Ships/' + id, user,
         {
             headers: {
-                'X-Parse-Application-Id': 'FVZ1xLv1XJPKGMhzkVChd6j5F3RIt5R0bGGWZEnE',
-                'X-Parse-REST-API-Key': 'jN4CWZNz0pHVDJSBhxYDyjJBLjZotFtLVoaD1Dp0',
+                'X-Parse-Application-Id': app_id,
+                'X-Parse-REST-API-Key': api_key,
                 'Content-Type': 'application/json'
             }
         })
@@ -41,8 +44,8 @@ export default class ProductService {
     async deleteUser(id) {
         return await axios.delete('https://parseapi.back4app.com/classes/Ships/' + id, {
             headers: {
-                'X-Parse-Application-Id': 'FVZ1xLv1XJPKGMhzkVChd6j5F3RIt5R0bGGWZEnE',
-                'X-Parse-REST-API-Key': 'jN4CWZNz0pHVDJSBhxYDyjJBLjZotFtLVoaD1Dp0',
+                'X-Parse-Application-Id': app_id,
+                'X-Parse-REST-API-Key': api_key,
                 'Content-Type': 'application/json'
             }
         })
@@ -55,8 +58,8 @@ export default class ProductService {
                 'limit': '999'
             },  
             headers: {
-                'X-Parse-Application-Id': 'FVZ1xLv1XJPKGMhzkVChd6j5F3RIt5R0bGGWZEnE',
-                'X-Parse-REST-API-Key': 'jN4CWZNz0pHVDJSBhxYDyjJBLjZotFtLVoaD1Dp0',
+                'X-Parse-Application-Id': app_id,
+                'X-Parse-REST-API-Key': api_key,
                 'Content-Type': 'application/json'
             }
         }).then(d => d.data.results)
@@ -66,8 +69,8 @@ export default class ProductService {
         return await axios.post('https://parseapi.back4app.com/classes/newShips', user,
         {
             headers: {
-                'X-Parse-Application-Id': 'FVZ1xLv1XJPKGMhzkVChd6j5F3RIt5R0bGGWZEnE',
-                'X-Parse-REST-API-Key': 'jN4CWZNz0pHVDJSBhxYDyjJBLjZotFtLVoaD1Dp0',
+                'X-Parse-Application-Id': app_id,
+                'X-Parse-REST-API-Key': api_key,
                 'Content-Type': 'application/json'
             }
         })
@@ -76,8 +79,8 @@ export default class ProductService {
     async deleteNew(id) {
         return await axios.delete('https://parseapi.back4app.com/classes/newShips/' + id, {
             headers: {
-                'X-Parse-Application-Id': 'FVZ1xLv1XJPKGMhzkVChd6j5F3RIt5R0bGGWZEnE',
-                'X-Parse-REST-API-Key': 'jN4CWZNz0pHVDJSBhxYDyjJBLjZotFtLVoaD1Dp0',
+                'X-Parse-Application-Id': app_id,
+                'X-Parse-REST-API-Key': api_key,
                 'Content-Type': 'application/json'
             }
         })
