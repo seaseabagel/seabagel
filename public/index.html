@@ -15,60 +15,6 @@
     <link id="theme-link" rel="stylesheet" href="<%= BASE_URL %>themes/lara-light-indigo/theme.css">
 </head>
     <body>
-        <script>
-            (function (d) {
-             if (!window.hasOwnProperty('novaTalks')) {
-             window.novaTalks = {
-               websiteToken: "XGiWpXLE4IUrJ54pOcO7NC",
-               baseUrl: "https://gamicorp.cloud.novatalks.com.ua",
-               isWidgetDynamic: true, 
-               
-             };
-             try {
-              const htmlHead = d.getElementsByTagName("head")[0];
-              const htmlBody = d.body;
-              const ntkWidgetHolder = d.createElement("div");
-              ntkWidgetHolder.setAttribute("id", "nova-talks");
-              htmlBody.appendChild(ntkWidgetHolder);
-              const ntkWidgetBaseURL = "https://storage.novatalks.ai/static/widget/v1";
-              const ntkWidgetRes = [
-               {
-                 type: "text/css",
-                 path: "/css/widget.css"
-               },
-               {
-                 type: "text/javascript",
-                 path: "/js/chunk-vendors.js"
-               },
-               {
-                 type: "text/javascript",
-                 path: "/js/widget.js"
-               }
-             ];
-             ntkWidgetRes.forEach((item)=> {
-               switch (item.type) {
-                 case "text/css":
-                   const ntkWidgetCSS = document.createElement("link");
-                   ntkWidgetCSS.setAttribute("type", "text/css");
-                   ntkWidgetCSS.setAttribute("rel", "stylesheet");
-                   ntkWidgetCSS.setAttribute("href", ntkWidgetBaseURL.concat(item.path));
-                   htmlHead.appendChild(ntkWidgetCSS);
-                   break;
-                 case "text/javascript":
-                   const ntkWidgetJS = document.createElement("script");
-                   ntkWidgetJS.setAttribute("type", "text/javascript");
-                   ntkWidgetJS.setAttribute("async", false);
-                   ntkWidgetJS.setAttribute("src", ntkWidgetBaseURL.concat(item.path));
-                   htmlBody.appendChild(ntkWidgetJS);
-                   break;
-               }
-             });
-             } catch (e) {
-               console.log('Exception: ', e);
-             }
-           }
-            })(document);
-          </script>
         <!-- 
 @@@@@@@@@@@@G7:^^^^^:^G@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@P.::::?#&@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 @@@@@@@@@@@@&P~::^^^^^^G@@@@@@@@@@@@@@@@@@@@@@5J77YG#@G.:::~B#&@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
