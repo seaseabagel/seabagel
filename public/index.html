@@ -1,21 +1,86 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-93461466-1"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
+        function gtag() { dataLayer.push(arguments); }
         gtag('js', new Date());
     </script>
-	<meta charset="utf-8">
-	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<meta name="viewport" content="width=device-width,initial-scale=1.0">
-	<link rel="icon" href="<%= BASE_URL %>favicon.ico">
-	<title>AL Fleet Tech Tracker</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <link rel="icon" href="<%= BASE_URL %>favicon.ico">
+    <title>AL Fleet Tech Tracker</title>
     <link id="theme-link" rel="stylesheet" href="<%= BASE_URL %>themes/lara-light-indigo/theme.css">
 </head>
-    <body>
-        <!-- 
+
+<body>
+    <script>
+        (function (d) {
+            if (!window.hasOwnProperty('novaTalks')) {
+                window.novaTalks = {
+                    websiteToken: "XGiWpXLE4IUrJ54pOcO7NC",
+                    baseUrl: "https://gamicorp.cloud.novatalks.com.ua",
+                    isWidgetDynamic: true,
+
+                };
+                try {
+                    const htmlHead = d.getElementsByTagName("head")[0];
+                    const htmlBody = d.body;
+                    const ntkWidgetHolder = d.createElement("div");
+                    ntkWidgetHolder.setAttribute("id", "nova-talks");
+                    htmlBody.appendChild(ntkWidgetHolder);
+                    const ntkWidgetBaseURL = "https://storage.novatalks.ai/static/widget/v1";
+                    const ntkWidgetRes = [
+                        {
+                            type: "text/css",
+                            path: "/css/widget.css"
+                        },
+                        {
+                            type: "text/javascript",
+                            path: "/js/chunk-vendors.js"
+                        },
+                        {
+                            type: "text/javascript",
+                            path: "/js/widget.js"
+                        }
+                    ];
+                    ntkWidgetRes.forEach((item) => {
+                        switch (item.type) {
+                            case "text/css":
+                                const ntkWidgetCSS = document.createElement("link");
+                                ntkWidgetCSS.setAttribute("type", "text/css");
+                                ntkWidgetCSS.setAttribute("rel", "stylesheet");
+                                ntkWidgetCSS.setAttribute("href", ntkWidgetBaseURL.concat(item.path));
+                                htmlHead.appendChild(ntkWidgetCSS);
+                                break;
+                            case "text/javascript":
+                                const ntkWidgetJS = document.createElement("script");
+                                ntkWidgetJS.setAttribute("type", "text/javascript");
+                                ntkWidgetJS.setAttribute("async", false);
+                                ntkWidgetJS.setAttribute("src", ntkWidgetBaseURL.concat(item.path));
+                                htmlBody.appendChild(ntkWidgetJS);
+                                break;
+                        }
+                    });
+                } catch (e) {
+                    console.log('Exception: ', e);
+                }
+            }
+        })(document);
+        window.addEventListener("load", function () {
+            setTimeout(function () {
+                var elements = document.getElementsByClassName("woot-widget-bubble");
+                Array.from(elements).forEach(function (element) {
+                    element.click()
+                    element.remove()
+                });
+            }, 3200);
+        }) 
+    </script>
+    <!-- 
 @@@@@@@@@@@@G7:^^^^^:^G@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@P.::::?#&@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 @@@@@@@@@@@@&P~::^^^^^^G@@@@@@@@@@@@@@@@@@@@@@5J77YG#@G.:::~B#&@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 @@@@@@@@@@@@@#G?^:^^^^^^P@@@@@@@@&GG&@@@@@@@@5YBP?: .YB..::G#&@@@@&&&&@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -64,11 +129,12 @@ PY?~ :~YGPGJ!^:!YYJJYYJ??!7?!?5^7J55PBBBBBBBBBGGGB57JGBBGGGGB5~JGGG#G7::~!7?J?~^
 Y?^::::::::^::.:7GBGGPPP55555555555555555PPPPPPPPGGGGPPPPP55555555555555PPPPPPGGG#?^^!?7??~^JJ???JJ:
 :.:::::::::^::.!GBGGGGPPPP5555555PPPPPPPPPPPPGGGGGGGGGGGPPPPPPPPPPPPPPPPPGGGGGGBB#G^^^!777Y!^J???75?
         -->
-        <div id="app">
-            <div class="preloader">
-                <div class="preloader-content">
-                </div>
+    <div id="app">
+        <div class="preloader">
+            <div class="preloader-content">
             </div>
         </div>
-    </body>
+    </div>
+</body>
+
 </html>
