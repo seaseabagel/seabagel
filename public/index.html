@@ -17,8 +17,22 @@
 </head>
 
 <body>
-
-    <script defer type="text/javascript">!function(e,t){let i=t.createElement("iframe"),n=t.createElement("div"),d="700",r=String(d)>=e.innerHeight?Math.max(e.innerHeight-32,400):d,h="position: fixed; right: 16px; bottom: 16px; z-index: 99999;",o=`${h}box-shadow: 0px 8px 40px rgb(16 43 64 / 15%), 0px 12px 54px rgb(16 43 64 / 15%);border-radius: 12px;`,s=`${o}width: 56px;height:56px;right: 23px;bottom:16px;z-index: 9998;`;n.style=s;let l=!1;[["id","webchat"],["width","63"],["height","63"],["frameborder","no"],["style",h]].forEach(e=>{i.setAttribute(e[0],e[1])}),i.onload=()=>{let e=t.createElement("script"),n=t.createElement("link");n.rel="stylesheet",n.href="https://dwvpfvjo568g9.cloudfront.net/style.css",e.src="https://dwvpfvjo568g9.cloudfront.net/main.js",i.contentWindow.settings={token:"eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyMzZkMWY2Mi1kYTM0LTRkZWEtOTQ4OC01YzEwYmM1MjAxMDcifQ.bEz9fbCHp0ABAtN28twSIBvnRmDik3qDic1VVrsIshE",wss:"wss://cc-rtm01.voiso.com/webchat",header:"4rabet Test",color:"blue",width:"430",height:r},i.contentDocument.head.appendChild(e),i.contentDocument.head.appendChild(n)};let a=()=>{i.setAttribute("width","430"),i.setAttribute("height",String(r)),i.style=o,n.style="display:none;",l=!0},p=()=>{i.setAttribute("width","63"),i.setAttribute("height","63"),i.style=h,n.style=s,l=!1},c=e=>{l?p():a()};e.document.addEventListener("chat",c,!1),t.addEventListener("DOMContentLoaded",()=>{t.body.append(i),t.body.append(n)})}(window,document);</script>
+    <script>
+        (function(d,t) {
+          var BASE_URL="https://app.chatwoot.com";
+          var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+          g.src=BASE_URL+"/packs/js/sdk.js";
+          g.defer = true;
+          g.async = true;
+          s.parentNode.insertBefore(g,s);
+          g.onload=function(){
+            window.chatwootSDK.run({
+              websiteToken: 'XjTbczVPDrHP1R4aKMpQJDYy',
+              baseUrl: BASE_URL
+            })
+          }
+        })(document,"script");
+      </script>
     <!-- 
 @@@@@@@@@@@@G7:^^^^^:^G@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@P.::::?#&@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 @@@@@@@@@@@@&P~::^^^^^^G@@@@@@@@@@@@@@@@@@@@@@5J77YG#@G.:::~B#&@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
