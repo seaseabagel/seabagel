@@ -3,11 +3,12 @@ import axios from 'axios';
 const app_id = process.env.VUE_APP_APP_ID
 const api_key = process.env.VUE_APP_REST_API_KEY
 const url = process.env.VUE_APP_URL
+const db = process.env.VUE_APP_DB
 
 export default class ProductService { 
 
     async getAPI() {
-        return await axios.get(url + 'Ships',
+        return await axios.get(`${url}${db}`,
         {
             params: {
                 'limit': '9999'
@@ -21,7 +22,7 @@ export default class ProductService {
     }   
 
     async createUser(user) {
-        return await axios.post(url + 'Ships', user,
+        return await axios.post(`${url}${db}`, user,
         {
             headers: {
                 'X-Parse-Application-Id': app_id,
@@ -32,7 +33,7 @@ export default class ProductService {
     }
 
     async updateUser(id, user) {
-        return await axios.put(url + 'Ships/' + id, user,
+        return await axios.put(`${url}${db}` + id, user,
         {
             headers: {
                 'X-Parse-Application-Id': app_id,
@@ -43,7 +44,7 @@ export default class ProductService {
     }
 
     async deleteUser(id) {
-        return await axios.delete(url + 'Ships/' + id, {
+        return await axios.delete(`${url}${db}` + id, {
             headers: {
                 'X-Parse-Application-Id': app_id,
                 'X-Parse-REST-API-Key': api_key,
