@@ -319,10 +319,8 @@ export default {
 			}
 		},
         fetchData(){
-            if(this.isAuthenticated){
-                this.productService.getAPI().then(data => this.products = data);
-                this.productService.getRecentShips().then(data => { this.products3 = data });
-            }
+            this.productService.getAPI().then(data => this.products = data);
+            this.productService.getRecentShips().then(data => { this.products3 = data });
         },
         getOut(){
             this.$router.push(this.$route.query.redirect || '/');
