@@ -14,7 +14,7 @@
 						<div class="flex align-items-center">
 							<span class="p-input-icon-left flex align-items-center">
 								<i class="pi pi-search" />
-								<InputText style="maxWidth: 14rem" v-model="filters['global'].value" placeholder="Keyword Search" />
+								<InputText style="max-width: 14rem" v-model="filters['global'].value" placeholder="Keyword Search" />
 							</span>
 							<Button label="Edit" icon="pi pi-pencil" class="p-button-danger" @click="confirmChangeSelected" :disabled="!selectedProducts || !selectedProducts.length" style="margin-left: 0.4rem;" />
 							<span class="ml-auto done" v-tooltip.top="'Counting ships that contribute to fleet tech'">{{percent}}/{{filterLength}} done</span>
