@@ -213,13 +213,23 @@
 				<h5 class="align-self-start">Bar Chart</h5>
 				<Chart ref="brChrt" type="bar" :data="basicData" :options="horizontalOptions" />
 			</div>
-			
-			<div class="card">
-				<h5>Import</h5>
-				<input style="display:none" type="file" accept=".csv" @change="onFileSelected" ref="fileInput">
-				<Button icon="pi pi-upload" label="Choose" @click="$refs.fileInput.click()" />
-				<h5>Export</h5>
-				<Button icon="pi pi-upload" label="Download" @click="CSVExport" />
+
+			<div class="grid">
+				<div class="col-12 md:col-6">
+					<div class="card">
+						<h5>Import</h5>
+						<input style="display:none" type="file" accept=".csv" @change="onFileSelected" ref="fileInput">
+						<Button icon="pi pi-upload" label="Choose" @click="$refs.fileInput.click()" />
+						<h5>Export</h5>
+						<Button icon="pi pi-upload" label="Download" @click="CSVExport" />
+					</div>
+				</div>	
+				<div class="col-12 md:col-6">
+					<div class="card">
+						<h5>Credit</h5>
+						<h7><a href="https://azurlane.koumakan.jp/">Data was taken from AL wiki</a></h7>
+					</div>	
+				</div>
 			</div>
 		</div>
 
