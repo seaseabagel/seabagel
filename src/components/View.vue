@@ -27,6 +27,9 @@
 						<template #filter>
 							<InputText type="text" v-model="filters['name_en'].value" class="p-column-filter" :placeholder="`Search by name - `" style="min-width: 9rem;" />
 						</template>
+						<template #body="{data}">
+							<span><a :style="isDark()" :href="'https://azurlane.koumakan.jp/wiki/'+data.name_en">{{data.name_en}}</a></span>
+						</template>
 					</Column>
 					<Column field="hullType" header="Type" :showFilterMenu="false" :sortable="true" style="min-width:12rem">
 						<template #filter="{filterModel,filterCallback}">
@@ -1181,12 +1184,16 @@ export default {
 				}
 			}
 			return index;
+		},
+		isDark() {
+			return this.$appState.darkTheme ? 'color: white' : 'color: #495057';
 		}
 	}
 }
 </script>
 
 <style lang="scss" scoped>
+
 .product-badge {
 	border-radius: 2px;
 	padding: .25em .5rem;
