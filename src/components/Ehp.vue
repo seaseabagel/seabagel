@@ -3,28 +3,22 @@
         <div class="col-24 xl:col-8">
 			<div class="card">
                 <h5>Ship</h5>
-                    <DataTable id="dt" ref="dt" stripedRows :value="ehp120" :paginator="true" :rows="10" class="p-datatable-sm" :rowsPerPageOptions="[10,25,50]"
+                    <DataTable id="dt" ref="dt" stripedRows :value="ehp125" :paginator="true" :rows="10" class="p-datatable-sm" :rowsPerPageOptions="[10,25,50]"
 					paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
 					responsiveLayout="scroll" v-model:filters="filters" :loading="loading" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} vanguard ships" >
 					<template #header>
 						<div class="flex align-items-center">
 							<span class="p-input-icon-left flex align-items-center">
 								<i class="pi pi-search" />
-								<InputText style="maxWidth: 14rem" v-model="filters['global'].value" placeholder="Keyword Search" />
+								<InputText style="max-width: 14rem" v-model="filters['global'].value" placeholder="Keyword Search" />
 							</span>
 						</div>
 					</template>
 					<Column field="Ship" header="Ship" :sortable="true" />
 					<Column field="Armor" header="Armor" :sortable="true" />
-					<Column field="Harmonic Effectivesness" header="Harmonic Eff" :sortable="true">
-                        <template #body="{data}">
-							<span v-tooltip.top="{value:data['Harmonic Effectivesness']}">{{round(data['Harmonic Effectivesness'])}}%</span>
-						</template>
+					<Column field="High Level Harmonic eHP" header="Harmonic eHP" :sortable="true">
                     </Column>
-					<Column field="Harmonic Variance" header="Harmonic Variance" :sortable="true">
-                        <template #body="{data}">
-							<span v-tooltip.top="{value:data['Harmonic Variance']}">{{round(data['Harmonic Variance'])}}%</span>
-						</template>
+					<Column field="SORT" header="SORT" :sortable="true">
                     </Column>
                     <Column :exportable="false" style="min-width:8rem">
                             <template #body="slotProps">
@@ -39,10 +33,10 @@
                 <h5>Enemy</h5>
                 <TreeSelect v-model="selectedEnemies" :options="nodes" @change="enemiesClick()" display="chip" selectionMode="checkbox" placeholder="Select Enemies"></TreeSelect>
             </div>
-            <div class="card">
+            <!-- <div class="card">
                 <h5>Level</h5>
                 <ToggleButton v-model="is125" onLabel="125" offLabel="120" class="w-full sm:w-10rem" />
-            </div>
+            </div> -->
         </div>
     </div>
     <div class="card">
@@ -61,7 +55,7 @@ export default {
     data() {
         return {
             loading: false,
-            is125: false,
+            is125: true,
             selectedEnemies: [],
             selectedEnemiesLabels: [],
             selectedShips: [],
@@ -134,12 +128,9 @@ export default {
 	},
     mounted() {
         this.loading = true;
-        this.productService.getEhp().then(data => {this.ehp120 = data 
-        this.defaultDatasetHandler()});
-        this.productService.getEhp125().then(data => {
-            this.ehp125 = data 
-            this.loading = false
-        });
+        this.productService.getEhp().then(data => {this.ehp125 = data 
+        this.defaultDatasetHandler()
+        this.loading = false});
         this.productService.getNodes().then(data => {this.nodes = data});
 		this.themeChangeListener = () => {
 			this.refreshOptions();
@@ -190,27 +181,29 @@ export default {
         defaultDatasetHandler(){
             this.defaultDataHandler(this.defaultShips, [])
         },
-        defaultDataHandler(x, y){
+        defaultDataHandler(x, y){ // works somehow
             let colors = ['#36a2eb', '#ff6384', '#4bc0c0', '#ff9f40', '#9966ff', '#ffcd56', '#c9cbcf']
             let lineChartDefaultDataset = []
             let lineChartShips = []
-            let lineChartCutLabels = ['Ship', 'Harmonic Effectivesness', 'Harmonic Variance', 'Armor', 'SORT', 'Effectiveness']
+            let lineChartCutLabels = ['Ship', 'High Level Harmonic eHP', 'Armor', 'SORT', 'Effectiveness']
             let lineChartDefaultLabels = []
-            let notTemp = JSON.parse(JSON.stringify(this.ehp120))
+            let notTemp = JSON.parse(JSON.stringify(this.ehp125))
             let temp125 = JSON.parse(JSON.stringify(this.ehp125))
-            let temp120 = JSON.parse(JSON.stringify(this.ehp120))
+            // let temp120 = JSON.parse(JSON.stringify(this.ehp120))
             x.forEach(function(element){
                 lineChartShips.push({id: notTemp.findIndex(x => x['Ship'] == element.name), level: element.level})
             })
             let i = 0
             lineChartShips.forEach(function(element){ // for each ship in the list
-                let temp1 = JSON.parse(JSON.stringify(temp125))
-                let temp = JSON.parse(JSON.stringify(temp120))
+                let temp = JSON.parse(JSON.stringify(temp125))
+                // let temp = JSON.parse(JSON.stringify(temp120))
                 i = i > 6 ? 0 : i
                 let tempLabel = temp[element.id]['Ship']
-                tempLabel = element.level ? tempLabel + ' (125)' : tempLabel
+                // tempLabel = element.level ? tempLabel + ' (125)' : tempLabel
+                tempLabel = tempLabel
                 let tempTemp = []
-                tempTemp = element.level ? temp1 : temp
+                // tempTemp = element.level ? temp1 : temp
+                tempTemp = temp
                 lineChartCutLabels.forEach(function(elem){ // delete useless data
                     delete tempTemp[element.id][elem] 
                 })

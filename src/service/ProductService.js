@@ -93,10 +93,6 @@ export default class ProductService {
     }
 
     getEhp() {
-		return fetch('data/eHP120.json').then(res => res.json()).then(d => d.data);
-    }
-
-    getEhp125() {
 		return fetch('data/eHP125.json').then(res => res.json()).then(d => d.data);
     }
 
