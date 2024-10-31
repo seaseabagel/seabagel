@@ -33,10 +33,10 @@
                 <h5>Enemy</h5>
                 <TreeSelect v-model="selectedEnemies" :options="nodes" @change="enemiesClick()" display="chip" selectionMode="checkbox" placeholder="Select Enemies"></TreeSelect>
             </div>
-            <!-- <div class="card">
-                <h5>Level</h5>
-                <ToggleButton v-model="is125" onLabel="125" offLabel="120" class="w-full sm:w-10rem" />
-            </div> -->
+            <div class="card">
+                <h5>Author</h5>
+                <h7><a href="https://azurlane.nagami.moe/ehp">All credit goes to Mebot</a></h7>
+            </div>
         </div>
     </div>
     <div class="card">
