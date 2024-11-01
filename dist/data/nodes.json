@@ -1,0 +1,110 @@
+{
+    "data": [
+        {
+            "label": "Stronghold", "data": "ST", "key": "0",
+            "children": [
+                {"label": "Chaser", "data": "Chaser", "key": "0-0", "children":[
+                    {"label": "Chaser III Norm", "data": "Chaser III Norm", "key": "0-0-0"},
+                    {"label": "Chaser III Torp1", "data": "Chaser III Torp1", "key": "0-0-1"},
+                    {"label": "Chaser III Torp2", "data": "Chaser III Torp2", "key": "0-0-2"}
+                ]},
+                {"label": "Navigator", "data": "Navigator", "key": "0-1", "children":[
+                    {"label": "Navigator III Norm1", "data": "Navigator III Norm1", "key": "0-1-0"},
+                    {"label": "Navigator III Norm2", "data": "Navigator III Norm2", "key": "0-1-1"},
+                    {"label": "Navigator III Norm3", "data": "Navigator III Norm3", "key": "0-1-2"},
+                    {"label": "Navigator III Norm4", "data": "Navigator III Norm4", "key": "0-1-3"},
+                    {"label": "Navigator III Norm5", "data": "Navigator III Norm5", "key": "0-1-4"},
+                    {"label": "Navigator III AP1", "data": "Navigator III AP1", "key": "0-1-5"},
+                    {"label": "Navigator III AP2", "data": "Navigator III AP2", "key": "0-1-6"}
+                ]},
+                {"label": "Smasher", "data": "Smasher", "key": "0-2", "children":[
+                    {"label": "Smasher III Normal1", "data": "Smasher III Normal1", "key": "0-2-0"},
+                    {"label": "Smasher III Normal2", "data": "Smasher III Normal2", "key": "0-2-1"},
+                    {"label": "Smasher III Normal3", "data": "Smasher III Normal3", "key": "0-2-2"},
+                    {"label": "Smasher III Normal4", "data": "Smasher III Normal4", "key": "0-2-3"},
+                    {"label": "Smasher III HE", "data": "Smasher III HE", "key": "0-2-4"},
+                    {"label": "Smasher III AP", "data": "Smasher III AP", "key": "0-2-5"}
+                ]},
+                {"label": "Conductor", "data": "Conductor", "key": "0-3", "children":[
+                    {"label": "Conductor III Normal1", "data": "Conductor III Normal1", "key": "0-3-0"},
+                    {"label": "Conductor III Normal2", "data": "Conductor III Normal2", "key": "0-3-1"},
+                    {"label": "Conductor III Torp", "data": "Conductor III Torp", "key": "0-3-2"},
+                    {"label": "Conductor III AVI", "data": "Conductor III AVI", "key": "0-3-3"}
+                ]}
+            ]
+        },
+        {"label": "Abyssal", "data": "AB", "key": "1",
+        "children": [
+            {"label": "Equilibrium", "data": "Equilibrium", "key": "1-0", "children":[
+                {"label": "Equilibrium Normal1", "data": "Equilibrium Normal1", "key": "1-0-0"},
+                {"label": "Equilibrium Normal2", "data": "Equilibrium Normal2", "key": "1-0-1"},
+                {"label": "Equilibrium Normal3", "data": "Equilibrium Normal3", "key": "1-0-2"},
+                {"label": "Equilibrium Normal4", "data": "Equilibrium Normal4", "key": "1-0-3"},
+                {"label": "Equilibrium Torp", "data": "Equilibrium Torp", "key": "1-0-4"}
+            ]},
+            {"label": "Concealment", "data": "Concealment", "key": "1-1", "children":[
+                {"label": "Concealment Normal1", "data": "Concealment Normal1", "key": "1-1-0"},
+                {"label": "Concealment Normal2", "data": "Concealment Normal2", "key": "1-1-1"},
+                {"label": "Concealment Normal3", "data": "Concealment Normal3", "key": "1-1-2"},
+                {"label": "Concealment HE", "data": "Concealment HE", "key": "1-1-3"},
+                {"label": "Concealment Torp", "data": "Concealment Torp", "key": "1-1-4"}
+            ]},
+            {"label": "Determination", "data": "Determination", "key": "1-2", "children":[
+                {"label": "Determination Normal1", "data": "Determination Normal1", "key": "1-2-0"},
+                {"label": "Determination Normal2", "data": "Determination Normal2", "key": "1-2-1"},
+                {"label": "Determination Normal3", "data": "Determination Normal3", "key": "1-2-2"},
+                {"label": "Determination AP", "data": "Determination AP", "key": "1-2-3"}
+            ]},
+            {"label": "Exploration", "data": "Exploration", "key": "1-3", "children":[
+                {"label": "Exploration Normal1", "data": "Exploration Normal1", "key": "1-3-0"},
+                {"label": "Exploration Normal2", "data": "Exploration Normal2", "key": "1-3-1"},
+                {"label": "Exploration Normal3", "data": "Exploration Normal3", "key": "1-3-2"},
+                {"label": "Exploration HE1", "data": "Exploration HE1", "key": "1-3-3"},
+                {"label": "Exploration HE2", "data": "Exploration HE2", "key": "1-3-4"},
+                {"label": "Exploration AP1", "data": "Exploration AP1", "key": "1-3-5"},
+                {"label": "Exploration AP2", "data": "Exploration AP2", "key": "1-3-6"}
+            ]},
+            {"label": "Harmony", "data": "Harmony", "key": "1-4", "children":[
+                {"label": "Harmony Norm", "data": "Harmony Norm", "key": "1-4-0"},
+                {"label": "Harmony AP", "data": "Harmony AP", "key": "1-4-1"},
+                {"label": "Harmony AP2", "data": "Harmony AP2", "key": "1-4-2"}
+            ]}
+        ]},
+        {"label": "META", "data": "ME", "key": "2",
+        "children": [
+            {"label": "Repulse META", "data": "Repulse META", "key": "2-0", "children":[
+                {"label": "Repulse META Norm1", "data": "Repulse META Norm1", "key": "2-0-0"},
+                {"label": "Repulse META Norm2", "data": "Repulse META Norm2", "key": "2-0-1"},
+                {"label": "Repulse META HE1", "data": "Repulse META HE1", "key": "2-0-2"},
+                {"label": "Repulse META HE2", "data": "Repulse META HE2", "key": "2-0-3"},
+                {"label": "Repulse META AP1", "data": "Repulse META AP1", "key": "2-0-4"},
+                {"label": "Repulse META AP2", "data": "Repulse META AP2", "key": "2-0-5"}
+            ]}
+        ]},
+        {"label": "Arbiter", "data": "AR", "key": "3",
+        "children": [
+            {"label": "Temperance XIV", "data": "Temperance XIV", "key": "3-0", "children":[
+                {"label": "Temperance XIV Norm1", "data": "Temperance XIV Norm1", "key": "3-0-0"},
+                {"label": "Temperance XIV Norm2", "data": "Temperance XIV Norm2", "key": "3-0-1"},
+                {"label": "Temperance XIV Norm3", "data": "Temperance XIV Norm3", "key": "3-0-2"},
+                {"label": "Temperance XIV Torp1", "data": "Temperance XIV Torp1", "key": "3-0-3"},
+                {"label": "Temperance XIV Torp2", "data": "Temperance XIV Torp2", "key": "3-0-4"}
+            ]},
+            {"label": "The Hermix IX", "data": "The Hermix IX", "key": "3-1", "children":[
+                {"label": "The Hermix IX Normal1", "data": "The Hermix IX Normal1", "key": "3-1-0"},
+                {"label": "The Hermix IX Normal2", "data": "The Hermix IX Normal2", "key": "3-1-1"},
+                {"label": "The Hermix IX Normal3", "data": "The Hermix IX Normal3", "key": "3-1-2"},
+                {"label": "The Hermix IX Normal4", "data": "The Hermix IX Normal4", "key": "3-1-3"},
+                {"label": "The Hermix IX Normal5", "data": "The Hermix IX Normal5", "key": "3-1-4"},
+                {"label": "The Hermit IX HE", "data": "The Hermit IX HE", "key": "3-1-5"}
+            ]},
+            {"label": "Strength VIII", "data": "Strength VIII", "key": "3-2", "children":[
+                {"label": "Strength VIII Norm1", "data": "Strength VIII Norm1", "key": "3-2-0"},
+                {"label": "Strength VIII Norm2", "data": "Strength VIII Norm1", "key": "3-2-1"},
+                {"label": "Strength VIII Norm3", "data": "Strength VIII Norm1", "key": "3-2-2"},
+                {"label": "Strength VIII Norm4", "data": "Strength VIII Norm1", "key": "3-2-3"},
+                {"label": "Strength VIII AP", "data": "Strength VIII AP", "key": "3-2-4"}
+            ]}
+        ]}
+    ]
+}
