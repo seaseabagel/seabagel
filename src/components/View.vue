@@ -868,13 +868,15 @@ export default {
 					maxLevelTest = 0
 					maxLevelUser = 0
 					for (let i = 0; i < this.products.length; i++) {
-						if (this.products[i].collectionStat === Object.keys(countTech)[k] && this.products[i].collectionApplicable.includes(Object.keys(countType)[j])){
+						let applicableCollection = JSON.parse(`[${this.products[i].collectionApplicable}]`);
+            					let applicableMaxLevel = JSON.parse(`[${this.products[i].maxLevelApplicable}]`);
+						if (this.products[i].collectionStat === Object.keys(countTech)[k] && applicableCollection.includes(Object.keys(countType)[j])){
 							collLevelTest += this.products[i].collectionBonus - 0
 							if(this.products[i].level >= 120 && this.products[i].level <= 125){
 								collLevelUser += this.products[i].collectionBonus - 0
 							}
 						}
-						if (this.products[i].maxLevelStat === Object.keys(countTech)[k] && this.products[i].maxLevelApplicable.includes(Object.keys(countType)[j])){
+						if (this.products[i].maxLevelStat === Object.keys(countTech)[k] && applicableMaxLevel.includes(Object.keys(countType)[j])){
 							maxLevelTest += this.products[i].maxLevelBonus - 0
 							if(this.products[i].level >= 120 && this.products[i].level <= 125){
 								maxLevelUser += this.products[i].maxLevelBonus - 0
@@ -886,32 +888,22 @@ export default {
 				}
 				collLevelTable.collLevelRows.push(collLevelRow)
 				maxLevelTable.maxLevelRows.push(maxLevelRow)
-
-				if(Object.keys(countType)[j] === 'Destroyer'){
-					const cloneMaxLevel = Object.assign({}, maxLevelRow);
-					cloneMaxLevel["type"] = 'Guided-missile destroyer';
-					maxLevelTable.maxLevelRows.push(cloneMaxLevel);
-					const cloneCollection = Object.assign({}, collLevelRow);
-					cloneCollection["type"] = 'Guided-missile destroyer';
-					collLevelTable.collLevelRows.push(cloneCollection);
-				}
-
-				if(Object.keys(countType)[j] === 'Battlecruiser'){
-					const cloneMaxLevel = Object.assign({}, maxLevelRow);
-					cloneMaxLevel["type"] = 'Aviation battleship';
-					maxLevelTable.maxLevelRows.push(cloneMaxLevel);
-					const cloneCollection = Object.assign({}, collLevelRow);
-					cloneCollection["type"] = 'Aviation battleship';
-					collLevelTable.collLevelRows.push(cloneCollection);
-				}
 				collLevelRow = {}
 				maxLevelRow = {}
 			}
 			let chartsData = [
-				this.sort(countAffiliations), countRarities, this.sort(countType), this.sort(barsTech), this.sort(countTech), this.sort(radarMaxLevel), this.sort(radarCollection), collLevelTable.collLevelRows, maxLevelTable.maxLevelRows, countApplicable
+				this.sort(countAffiliations), //chartsData[0]
+				countRarities,
+				this.sort(countType),
+				this.sort(barsTech),
+				this.sort(countTech),
+				this.sort(radarMaxLevel),
+				this.sort(radarCollection),
+				collLevelTable.collLevelRows,
+				maxLevelTable.maxLevelRows,
+				countApplicable
 			]
 			localStorage.setItem('chartsData', JSON.stringify(chartsData));
-
 			this.fetchData()
 		},
 		fetchData(){
