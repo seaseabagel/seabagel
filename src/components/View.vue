@@ -2,6 +2,37 @@
 	<Toast />
 	<Toast position="bottom-right" group="br" />
 	<ConfirmDialog/>
+	<div>
+		<!-- Hidden area for rendering tables -->
+		<div ref="tablesContainer" class="tables-container">
+			<div v-for="(products, nationality) in filteredGroupedShips" :key="nationality"
+			class="nationality-table" :style="getNationalityStyle()">
+			<h3 :style="getNationalityHeaderStyle(nationality)">{{ nationality }}</h3>
+			<table>
+				<thead>
+					<tr>
+					<th>Ship</th>
+					<th>Rarity</th>
+					<th>120 Stat</th>
+					</tr>
+				</thead>
+			<tbody>
+				<tr v-for="ship in products" :key="ship.name_en">
+					<td :style="getShipNameStyle(nationality)">{{ ship.name_en }}</td>
+					<td :style="getBorderStyle(nationality, ship)">{{ ship.rarity }}</td>
+					<td :style="getBorderStyle(nationality, ship)">
+						<img 
+							:src="getStatIcon(ship.maxLevelStat)" 
+							:alt="ship.maxLevelStat"
+							class="stat-icon"
+						/>
+					</td>
+				</tr>
+			</tbody>
+			</table>
+			</div>
+		</div>
+	</div>
 	<div class="grid">
 		<div class="col-12">
 			<div class="card">
@@ -109,7 +140,7 @@
 		<div class="col-12 xl:col-8">
 			<div class="card">
 				<h5>Recent Ships</h5>
-				<DataTable :loading="loadingRecent" editMode="cell" :value="products4" :rows="5" sortField="shipId" :sortOrder="1" :paginator="true" responsiveLayout="scroll">
+				<DataTable :loading="loadingRecent" editMode="cell" :value="fullRecentProducts" :rows="5" sortField="shipId" :sortOrder="1" :paginator="true" responsiveLayout="scroll">
 					<Column field="name_en" header="Name" :sortable="true" />
 					<Column field="hullType" header="Type" :sortable="true" />
 					<Column field="rarity" header="Rarity" :sortable="true" style="width: 9rem;">
@@ -189,7 +220,7 @@
 				<template v-slot:content>
 					<div class="card">
 						<h5>{{returnValueLabelMax}}</h5>
-						<DataTable :value="products2" class="p-datatable-sm" stripedRows showGridlines responsiveLayout="scroll" >
+						<DataTable :value="chartsDataProducts" class="p-datatable-sm" stripedRows showGridlines responsiveLayout="scroll" >
 							<Column field="type" style="width:2rem;">
 								<template #body="{data}">
 									<img :src="'images/icons/' + data.type + '.png'" @click="showTech('maxLevelApplicable', data.type)" :title="data.type" class="table-img" />
@@ -229,6 +260,11 @@
 						<h5>Credit</h5>
 						<h7><a href="https://azurlane.koumakan.jp/">Data was taken from AL wiki</a></h7>
 					</div>	
+					<div class="card">
+						<h5>Create image</h5>
+						<Button :label="isGenerating ? 'Generating...' : 'Generate all'" @click="generateImage(true)" :disabled="isGenerating" />
+						<Button :label="isGeneratingHighlighted ? 'Generating...' : 'Generate with my fleet tech'" @click="generateHighlightedImage(false)" class="ml-2" :disabled="isGeneratingHighlighted"/>
+					</div>	
 				</div>
 			</div>
 		</div>
@@ -265,12 +301,31 @@
 import ProductService from '../service/ProductService';
 import {FilterMatchMode, FilterOperator} from 'primevue/api';
 import EventBus from '../AppEventBus';
+import { Buffer } from 'buffer';
+import pako from 'pako';
+import html2canvas from "html2canvas";
 
 export default {
 	data() {
 		return {
+			isGenerating: false,
+			isGeneratingHighlighted: false,
+			highlightLevel: false,
+			nationalityColors: {
+				"Eagle Union": "\#a9e2f3",
+				"Royal Navy": "\#d0a9f5",
+				"Sakura Empire": "\#f781d8",
+				"Iron Blood": "\#fa5882",
+				"Northern Parliament": "\#819ff7",
+				"Iris Libre": "\#ffd192",
+				"Vichya Dominion": "\#ffb4b4",
+				"Dragon Empery": "\#c4adff",
+				"Tempesta": "\#89bf8e",
+				"Sardegna Empire": "\#98fb98",
+				"META": "\#222222",
+			},
 			hiddenLabel: 0,
-			dtSortField: null,
+			dtSortField: null,	
 			API: null,
 			collHidden: null,
 			userSettings: {},
@@ -287,9 +342,9 @@ export default {
 			products: [],
 			product: {},
 			products1: null,
-			products2: null,
-			products3: [],
-			products4: [],
+			chartsDataProducts: null,
+			recentProducts: [],
+			fullRecentProducts: [],
 			columns: null,
 			expColumns: null,
 			techColumns: null,
@@ -502,7 +557,7 @@ export default {
 		];
 		this.welcomeGuest();
 		this.productService.getRecentShips().then(data => {
-			this.products3 = data
+			this.recentProducts = data
 		});
 		this.productService.getProducts().then(data => {this.exp = data});
 		this.productService.getAPI().then(data => {
@@ -517,7 +572,163 @@ export default {
 			this.getNewShips()
 		});
 	},
+	computed: {
+		groupedShips() {
+			return this.products.reduce((groups, ship) => {
+				if (!groups[ship.nationality]) groups[ship.nationality] = [];
+				groups[ship.nationality].push(ship);
+				return groups;
+			}, {});
+		},
+		filteredGroupedShips() {
+			const targetStats = ['accuracy', 'firepower', 'reload', 'aviation'];
+
+			// First, filter out ships which do not have maxLevelStat in targetStats
+			const filteredProducts = this.products.filter(product => 
+				targetStats.includes(product.maxLevelStat)
+			);
+
+			// Then, group the filtered products by nationality
+			return filteredProducts.reduce((groups, ship) => {
+				if (!groups[ship.nationality]) groups[ship.nationality] = [];
+				groups[ship.nationality].push(ship);
+				return groups;
+			}, {});
+		}
+	},
 	methods: {
+		getStatIcon(stat) {
+			const iconMap = {
+			accuracy: 'accuracy',
+			firepower: 'firepower',
+			reload: 'reload',
+			aviation: 'aviation'
+			};
+			return `images/icons/${iconMap[stat]}.png`;
+		},
+		getNationalityStyle() {
+			return {
+				margin: "10px 0",
+				padding: "10px",
+				backgroundColor: "white"
+			};
+		},
+		getBorderStyle(nationality, ship) {
+			const color = this.nationalityColors[nationality] || "white";
+			const style = {
+				borderBottom: `3px solid ${this.highlightLevel && ship.level >= 120 ? 'white' : color}`,
+				borderLeft: '4px solid white',	
+				verticalAlign: 'middle',
+			};
+			if (this.highlightLevel && ship.level >= 120) {
+				style.backgroundColor = '#00FF0044';
+			}
+			return style;
+		},
+		getNationalityHeaderStyle(nationality) {
+			const color = this.nationalityColors[nationality] || "black";
+			return {
+				backgroundColor: "white",
+				color: color,
+				textAlign: "center",
+				borderBottom: `4px solid ${color}`,
+				fontSize: "4em",
+				borderTop: "none",
+				marginTop: "0"
+			};
+		},
+		getShipNameStyle(nationality) {  
+			const color = this.nationalityColors[nationality] || "white";  
+			return {  
+				backgroundColor: color,  
+				color: "white",  
+				textAlign: "right",  
+				borderBottom: `2px solid white`, // Keep the bottom border white for the first column  
+			};  
+		},
+		async generateHighlightedImage(flag) {
+			this.isGeneratingHighlighted = true;
+			try {
+				this.highlightLevel = true;
+				await this.$nextTick();
+				await this.generateImage(flag);
+			} finally {
+				this.highlightLevel = false;
+				this.isGeneratingHighlighted = false;
+			}
+		},
+		async generateImage(flag) {
+			if(flag){
+				this.isGenerating = true;
+			}
+			try {
+				const container = this.$refs.tablesContainer;
+				await this.$nextTick();
+				container.style.display = "block";
+				await this.$nextTick();
+
+				const tables = Array.from(container.querySelectorAll('.nationality-table'));
+				tables.forEach(table => {
+				table.style.width = '700px';
+				table.querySelector('table').style.width = '700px';
+				});
+				const images = await Promise.all(tables.map(async (table) => {
+					table.style.display = "block";
+					const canvas = await html2canvas(table, { backgroundColor: "#fff" });
+					table.style.display = "none";  // Hide immediately after capture to minimize reflows
+					return canvas;
+				}));
+
+				container.style.display = "none"; // Hide the container again
+
+				if (!images.length) return;
+
+				const gridSize = Math.ceil(Math.sqrt(images.length));
+				const cellWidth = images[0].width;
+				const rowHeights = [];
+
+				// Calculate max height per row in one pass
+				for (let i = 0; i < images.length; i += gridSize) {
+					const rowImages = images.slice(i, i + gridSize);
+					const maxHeight = Math.max(...rowImages.map(img => img.height));
+					rowHeights.push(maxHeight);
+				}
+
+				const finalCanvas = document.createElement("canvas");
+				finalCanvas.width = gridSize * cellWidth;
+				finalCanvas.height = rowHeights.reduce((sum, height) => sum + height, 0);
+				const ctx = finalCanvas.getContext("2d");
+
+				// Fill the canvas with a white background
+				ctx.fillStyle = "#fff";
+				ctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
+
+				let xOffset = 0, yOffset = 0;
+				let rowIndex = 0;
+
+				// Draw each image on the final canvas
+				for (let i = 0; i < images.length; i++) {
+					ctx.drawImage(images[i], xOffset, yOffset);
+
+					// Move to the next cell in the grid
+					xOffset += cellWidth;
+					if ((i + 1) % gridSize === 0) {
+						xOffset = 0;
+						yOffset += rowHeights[rowIndex];
+						rowIndex++;
+					}
+				}
+
+				// Export the final canvas as an image
+				const finalImage = finalCanvas.toDataURL("image/png");
+				const link = document.createElement("a");
+				link.href = finalImage;
+				link.download = "ships_collection.png";
+				link.click();
+			} finally {
+			this.isGenerating = false;
+		}
+		},
 		changeHiddenLabel(){
 			this.hiddenLabel = {
 				0: 1,
@@ -595,52 +806,56 @@ export default {
 			}
 		},
 		getNewShips(){
-			for (let j = 0; j < this.products3.length; j++) {
-				this.products4[j] = this.realData[this.findIndexById(this.products3[j]['shipId'])]
+			for (let j = 0; j < this.recentProducts.length; j++) {
+				this.fullRecentProducts[j] = this.realData[this.findIndexById(this.recentProducts[j]['shipId'])]
 			}
 			this.loadingRecent = false
 		},
-		afterImport(){
-			if(localStorage.getItem('temp') !== null){
-				let arr = JSON.parse(localStorage.getItem('temp'))
-				let row = {}
-				let result = []
-				for (let i = 0; i < this.realData.length; i++) {
-					row = {}
-					let searchIndex = arr.findIndex((elem) => elem.name == this.realData[i].name_en);
-					row['id'] = this.realData[i].shipId
-					row['name'] = this.realData[i].name_en
-					row['lvl'] = searchIndex > -1 ? arr[searchIndex].lvl : 0
-					result.push(row)
-				}
-				localStorage.setItem('lvls', JSON.stringify(result))
-				localStorage.removeItem('temp')
-			}
+		afterImport() {
+			const tempData = localStorage.getItem('temp');
+			if (!tempData) return;
+
+			const imported = JSON.parse(tempData);
+			const lvls = this.realData.map(ship => {
+				const match = imported.find(item => item.name === ship.name_en);
+				return { id: ship.shipId, name: ship.name_en, lvl: match?.lvl || 0 };
+			});
+
+			localStorage.setItem('lvls', JSON.stringify(lvls));
+			localStorage.removeItem('temp');
+			this.products = this.makeData(); // Directly update component data
 		},
-		onFileSelected(event){
-			var fileReader = new FileReader();
-			fileReader.onload = function(event) {
-				var lines=event.target.result.split("\n");
+		onFileSelected(event) {
+			const file = event.target.files[0];
+			if (!file) return;
 
-				var result = [];
+			const fileReader = new FileReader();
 
-				for(var i = 1; i < lines.length; i++){
+			// Use an arrow function to bind `this` to the Vue component instance
+			fileReader.onload = (event) => {
+				const lines = event.target.result.split("\n");
+				const result = [];
 
-					var obj = {};
-					var currentline = lines[i].split(",");
+				for (let i = 1; i < lines.length; i++) {
+					const currentline = lines[i].split(",");
+					if (currentline.length < 3) continue; // Skip invalid lines
 
-					obj['id'] = currentline[0];
-					obj['name'] = currentline[1];
-					obj['lvl'] = currentline[2];
-
+					const obj = {
+						id: currentline[0],
+						name: currentline[1],
+						lvl: currentline[2],
+					};
 					result.push(obj);
-
 				}
-				localStorage.setItem('temp', JSON.stringify(result))
-				localStorage.setItem("retrievedObject", JSON.stringify('true'));
-				location.reload();
-			}
-			var file = event.target.files[0];
+
+				localStorage.setItem('temp', JSON.stringify(result));
+				localStorage.setItem("retrievedObject", "true");
+				this.afterImport();  // Process temp data immediately
+				this.checkData();    // Update products
+				this.fetch1Time();   // Regenerate chartsData
+				this.fetchData();    // Refresh charts
+				this.$toast.add({severity:'success', summary:'Imported', detail:'Data loaded!', life: 3000})
+			};
 			fileReader.readAsText(file);
 		},
 		CSVExport(){
@@ -663,20 +878,20 @@ export default {
 		},
 		exportToCsv(filename, rows) {
 			var processRow = function (row) {
-			var finalVal = '';
-			for (var j = 0; j < row.length; j++) {
-					var innerValue = row[j] === null ? '' : row[j].toString();
-					if (row[j] instanceof Date) {
-						innerValue = row[j].toLocaleString()
+				var finalVal = '';
+				for (var j = 0; j < row.length; j++) {
+						var innerValue = row[j] === null ? '' : row[j].toString();
+						if (row[j] instanceof Date) {
+							innerValue = row[j].toLocaleString()
+						}
+						var result = innerValue.replace(/"/g, '').replace(/\\/g, '').replace('null', '');
+						if (result.search(/("|,|\n)/g) >= 0)
+							result = '"' + result + '"';
+						if (j > 0)
+							finalVal += ',';
+							finalVal += result;
 					}
-					var result = innerValue.replace(/"/g, '').replace(/\\/g, '').replace('null', '');
-					if (result.search(/("|,|\n)/g) >= 0)
-						result = '"' + result + '"';
-					if (j > 0)
-						finalVal += ',';
-						finalVal += result;
-				}
-				return finalVal + '\n';
+					return finalVal + '\n';
 			};
 
 			var csvFile = '';
@@ -699,6 +914,16 @@ export default {
 					document.body.removeChild(link);
 				}
 			}
+		},
+		encodeTable(data) {
+			const flatString = data.map(row => row.join('|')).join('\n');
+			const compressed = pako.deflate(flatString, { to: 'string' });
+			return Buffer.from(compressed, 'utf-8').toString('base64');
+		},
+		decodeTable(compressed) {
+			const flatString = Buffer.from(compressed, 'base64').toString('utf-8');
+			const decompressed = pako.inflate(flatString, { to: 'string' });
+			return decompressed.split('\n').map(row => row.split('|'));
 		},
 		unpackUserSettings(){
 			let retrievedUserSettings = JSON.parse(localStorage.getItem('userSettings'))
@@ -756,14 +981,13 @@ export default {
 				2: 'Compare',
 			}[this.returnValueMax] || 0;
 		},
-		checkData(){
-			if(localStorage.getItem('retrievedObject') === null){
-				this.fetch1Time()
+		checkData() {
+			if (localStorage.getItem('retrievedObject')) {
+				this.products = this.makeData(); // Always use latest lvls
+			} else {
+				this.fetch1Time(); // Initial launch
 			}
-			else{
-				this.products = this.makeData()
-			}
-			this.loading = false
+			this.loading = false;
 		},
 		makeData(){
 			let lvlsData = JSON.parse(localStorage.getItem('lvls'))
@@ -868,13 +1092,15 @@ export default {
 					maxLevelTest = 0
 					maxLevelUser = 0
 					for (let i = 0; i < this.products.length; i++) {
-						if (this.products[i].collectionStat === Object.keys(countTech)[k] && this.products[i].collectionApplicable.includes(Object.keys(countType)[j])){
+						let applicableCollection = JSON.parse(`[${this.products[i].collectionApplicable}]`);
+            			let applicableMaxLevel = JSON.parse(`[${this.products[i].maxLevelApplicable}]`);
+						if (this.products[i].collectionStat === Object.keys(countTech)[k] && applicableCollection.includes(Object.keys(countType)[j])){
 							collLevelTest += this.products[i].collectionBonus - 0
 							if(this.products[i].level >= 120 && this.products[i].level <= 125){
 								collLevelUser += this.products[i].collectionBonus - 0
 							}
 						}
-						if (this.products[i].maxLevelStat === Object.keys(countTech)[k] && this.products[i].maxLevelApplicable.includes(Object.keys(countType)[j])){
+						if (this.products[i].maxLevelStat === Object.keys(countTech)[k] && applicableMaxLevel.includes(Object.keys(countType)[j])){
 							maxLevelTest += this.products[i].maxLevelBonus - 0
 							if(this.products[i].level >= 120 && this.products[i].level <= 125){
 								maxLevelUser += this.products[i].maxLevelBonus - 0
@@ -886,35 +1112,28 @@ export default {
 				}
 				collLevelTable.collLevelRows.push(collLevelRow)
 				maxLevelTable.maxLevelRows.push(maxLevelRow)
-
-				if(Object.keys(countType)[j] === 'Destroyer'){
-					const cloneMaxLevel = Object.assign({}, maxLevelRow);
-					cloneMaxLevel["type"] = 'Guided-missile destroyer';
-					maxLevelTable.maxLevelRows.push(cloneMaxLevel);
-					const cloneCollection = Object.assign({}, collLevelRow);
-					cloneCollection["type"] = 'Guided-missile destroyer';
-					collLevelTable.collLevelRows.push(cloneCollection);
-				}
-
-				if(Object.keys(countType)[j] === 'Battlecruiser'){
-					const cloneMaxLevel = Object.assign({}, maxLevelRow);
-					cloneMaxLevel["type"] = 'Aviation battleship';
-					maxLevelTable.maxLevelRows.push(cloneMaxLevel);
-					const cloneCollection = Object.assign({}, collLevelRow);
-					cloneCollection["type"] = 'Aviation battleship';
-					collLevelTable.collLevelRows.push(cloneCollection);
-				}
 				collLevelRow = {}
 				maxLevelRow = {}
 			}
 			let chartsData = [
-				this.sort(countAffiliations), countRarities, this.sort(countType), this.sort(barsTech), this.sort(countTech), this.sort(radarMaxLevel), this.sort(radarCollection), collLevelTable.collLevelRows, maxLevelTable.maxLevelRows, countApplicable
+				this.sort(countAffiliations), //chartsData[0]
+				countRarities,
+				this.sort(countType),
+				this.sort(barsTech),
+				this.sort(countTech),
+				this.sort(radarMaxLevel),
+				this.sort(radarCollection),
+				collLevelTable.collLevelRows,
+				maxLevelTable.maxLevelRows,
+				countApplicable
 			]
 			localStorage.setItem('chartsData', JSON.stringify(chartsData));
-
-			this.fetchData()
+			this.fetchData();
 		},
 		fetchData(){
+			if(localStorage.getItem('retrievedObject') !== null){
+				this.products = this.makeData()
+			}
 			let notNullLength = 0;
 			let sum = [];
 			let sum120 = [];
@@ -936,7 +1155,7 @@ export default {
 			var chartsData = JSON.parse(localStorage.getItem('chartsData'));
 
 			this.products1 = chartsData[7]
-			this.products2 = chartsData[8]
+			this.chartsDataProducts = chartsData[8]
 			
 			this.types = Object.keys(chartsData[2]);
 			let array = Object.keys(chartsData[1]);
@@ -1285,5 +1504,94 @@ img {
 }
 ::v-deep(.row-accessories) {
 	background-color: rgba(0,0,0,.15) !important;
+}
+
+.nationality-table {
+  margin: 20px 0;
+  background-color: white;
+}
+
+.nationality-table h3 {
+  padding: 20px 0;
+  margin: 0;
+  font-size: 2em;
+}
+
+.nationality-table table {
+  width: auto !important;
+  table-layout: auto !important;
+  border-collapse: collapse;
+  font-size: 2em;
+  border-top: none !important;
+}
+
+.nationality-table table th,  
+.nationality-table table td {  
+  border-bottom: 3px solid inherit !important;
+  border-right: 0;
+  padding: 3px;  
+  text-align: left;  
+  color: black;  
+  width: auto;
+  overflow: visible;
+}
+.nationality-table table th {
+  /*width: 33%;*/
+  overflow: visible !important;
+  text-align: center !important;
+}
+.nationality-table table td {
+  /*width: 33%;*/
+  overflow: visible !important;
+  white-space: nowrap;
+}
+.nationality-table table th:first-child,  
+.nationality-table table td:first-child {  
+  color: white;
+  border-bottom: 5px solid white;
+  width: 50% !important;
+  min-width: 350px;
+  white-space: nowrap;
+}
+.nationality-table table th:first-child { /*?????*/
+  text-align: right;
+  color: black !important;
+}
+.nationality-table table th:not(:first-child),
+.nationality-table table td:not(:first-child) {
+  width: 25% !important;
+  min-width: 175px;
+}
+.tables-container {
+  position: absolute;
+  left: -9999px;
+  top: -9999px;
+  background: white;
+  padding: 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(700px, 1fr));
+  gap: 20px;
+}
+h3 {
+  padding: 20px 0;
+  font-size: 2em; /* Increase font size */
+}
+.highlighted-row {
+  background-color: #00FF0044 !important;
+}
+.p-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+.tables-container {
+  grid-template-columns: repeat(auto-fill, 700px); /* Fixed width */
+  justify-content: center; /* Center tables */
+}
+.stat-icon {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  display: block;
+  margin: 0 auto;
 }
 </style>
