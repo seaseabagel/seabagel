@@ -1093,7 +1093,7 @@ export default {
 					maxLevelUser = 0
 					for (let i = 0; i < this.products.length; i++) {
 						let applicableCollection = JSON.parse(`[${this.products[i].collectionApplicable}]`);
-            			let applicableMaxLevel = JSON.parse(`[${this.products[i].maxLevelApplicable}]`);
+            				let applicableMaxLevel = JSON.parse(`[${this.products[i].maxLevelApplicable}]`);
 						if (this.products[i].collectionStat === Object.keys(countTech)[k] && applicableCollection.includes(Object.keys(countType)[j])){
 							collLevelTest += this.products[i].collectionBonus - 0
 							if(this.products[i].level >= 120 && this.products[i].level <= 125){
@@ -1128,7 +1128,7 @@ export default {
 				countApplicable
 			]
 			localStorage.setItem('chartsData', JSON.stringify(chartsData));
-			this.fetchData();
+			this.fetchData()
 		},
 		fetchData(){
 			if(localStorage.getItem('retrievedObject') !== null){
