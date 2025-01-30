@@ -255,16 +255,16 @@
 						<Button icon="pi pi-upload" label="Download" @click="CSVExport" />
 					</div>
 				</div>	
-				<div class="col-12 md:col-6">
+				<div class="col-12 md:col-6">	
 					<div class="card">
-						<h5>Credit</h5>
-						<h7><a href="https://azurlane.koumakan.jp/">Data was taken from AL wiki</a></h7>
-					</div>	
-					<div class="card">
-						<h5>Create image</h5>
+						<h5>Create image with: <span class="toggle-link" @click="toggleValue">{{selectValue ? 'good fleet tech' : 'all ships'}}</span></h5>
 						<Button :label="isGenerating ? 'Generating...' : 'Generate all'" @click="generateImage(true)" :disabled="isGenerating" />
 						<Button :label="isGeneratingHighlighted ? 'Generating...' : 'Generate with my fleet tech'" @click="generateHighlightedImage(false)" class="ml-2" :disabled="isGeneratingHighlighted"/>
 					</div>	
+					<div class="card">
+						<h5>Credit</h5>
+						<p class="credit-text"><a href="https://azurlane.koumakan.jp/">Data was taken from AL wiki</a></p>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -308,6 +308,7 @@ import html2canvas from "html2canvas";
 export default {
 	data() {
 		return {
+			selectValue: true,
 			isGenerating: false,
 			isGeneratingHighlighted: false,
 			highlightLevel: false,
@@ -581,30 +582,27 @@ export default {
 			}, {});
 		},
 		filteredGroupedShips() {
-			const targetStats = ['accuracy', 'firepower', 'reload', 'aviation'];
+			const filtered = this.products.filter(product => {
+				if (!this.selectValue) {
+					return product.maxLevelStat && product.maxLevelStat.trim() !== '';
+				}
+				const targetStats = ['accuracy', 'firepower', 'reload', 'aviation'];
+				return targetStats.includes(product.maxLevelStat);
+			});
 
-			// First, filter out ships which do not have maxLevelStat in targetStats
-			const filteredProducts = this.products.filter(product => 
-				targetStats.includes(product.maxLevelStat)
-			);
-
-			// Then, group the filtered products by nationality
-			return filteredProducts.reduce((groups, ship) => {
+			return filtered.reduce((groups, ship) => {
 				if (!groups[ship.nationality]) groups[ship.nationality] = [];
 				groups[ship.nationality].push(ship);
 				return groups;
 			}, {});
-		}
+			}
 	},
 	methods: {
+		toggleValue(){
+			this.selectValue = this.selectValue ? false : true
+		},
 		getStatIcon(stat) {
-			const iconMap = {
-			accuracy: 'accuracy',
-			firepower: 'firepower',
-			reload: 'reload',
-			aviation: 'aviation'
-			};
-			return `images/icons/${iconMap[stat]}.png`;
+			return `images/icons/${stat || 'null'}.png`;
 		},
 		getNationalityStyle() {
 			return {
@@ -643,7 +641,7 @@ export default {
 				backgroundColor: color,  
 				color: "white",  
 				textAlign: "right",  
-				borderBottom: `2px solid white`, // Keep the bottom border white for the first column  
+				borderBottom: `2px solid white`,
 			};  
 		},
 		async generateHighlightedImage(flag) {
@@ -723,7 +721,7 @@ export default {
 				const finalImage = finalCanvas.toDataURL("image/png");
 				const link = document.createElement("a");
 				link.href = finalImage;
-				link.download = "ships_collection.png";
+				link.download = `${this.selectValue ? 'good_tech' : 'all'}_ships_collection.png`;
 				link.click();
 			} finally {
 			this.isGenerating = false;
@@ -1536,12 +1534,10 @@ img {
   overflow: visible;
 }
 .nationality-table table th {
-  /*width: 33%;*/
   overflow: visible !important;
-  text-align: center !important;
+  text-align: center;
 }
 .nationality-table table td {
-  /*width: 33%;*/
   overflow: visible !important;
   white-space: nowrap;
 }
@@ -1553,8 +1549,8 @@ img {
   min-width: 350px;
   white-space: nowrap;
 }
-.nationality-table table th:first-child { /*?????*/
-  text-align: right;
+.nationality-table table th:first-child {
+  text-align: right !important;
   color: black !important;
 }
 .nationality-table table th:not(:first-child),
@@ -1571,10 +1567,12 @@ img {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(700px, 1fr));
   gap: 20px;
+  grid-template-columns: repeat(auto-fill, 700px);
+  justify-content: center;
 }
 h3 {
   padding: 20px 0;
-  font-size: 2em; /* Increase font size */
+  font-size: 2em;
 }
 .highlighted-row {
   background-color: #00FF0044 !important;
@@ -1583,15 +1581,23 @@ h3 {
   opacity: 0.7;
   cursor: not-allowed;
 }
-.tables-container {
-  grid-template-columns: repeat(auto-fill, 700px); /* Fixed width */
-  justify-content: center; /* Center tables */
-}
 .stat-icon {
   width: 40px;
   height: 40px;
   object-fit: contain;
   display: block;
   margin: 0 auto;
+}
+.toggle-link {  
+  color: #ffd700;
+  cursor: pointer;
+  
+  &:hover {
+    color: #ffea00;
+  }
+}
+.credit-text {
+  font-size: 1rem;
+  margin: 0.5rem 0;
 }
 </style>
