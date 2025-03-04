@@ -7,29 +7,32 @@
 		<div ref="tablesContainer" class="tables-container">
 			<div v-for="(products, nationality) in filteredGroupedShips" :key="nationality"
 			class="nationality-table" :style="getNationalityStyle()">
-			<h3 :style="getNationalityHeaderStyle(nationality)">{{ nationality }}</h3>
-			<table>
-				<thead>
-					<tr>
-					<th>Ship</th>
-					<th>Rarity</th>
-					<th>120 Stat</th>
-					</tr>
-				</thead>
-			<tbody>
-				<tr v-for="ship in products" :key="ship.name_en">
-					<td :style="getShipNameStyle(nationality)">{{ ship.name_en }}</td>
-					<td :style="getBorderStyle(nationality, ship)">{{ ship.rarity }}</td>
-					<td :style="getBorderStyle(nationality, ship)">
-						<img 
-							:src="getStatIcon(ship.maxLevelStat)" 
-							:alt="ship.maxLevelStat"
-							class="stat-icon"
-						/>
-					</td>
-				</tr>
-			</tbody>
-			</table>
+				<h3 :style="getNationalityHeaderStyle(nationality)">{{ nationality }}</h3>
+				<table>
+					<thead>
+						<tr>
+						<th>Ship</th>
+						<th>Rarity</th>
+						<th>120 Stat</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr v-for="ship in products" :key="ship.name_en">
+							<td :style="getShipNameStyle(nationality)">{{ ship.name_en }}</td>
+							<td :style="getBorderStyle(nationality, ship)">{{ ship.rarity }}</td>
+							<td :style="getBorderStyle(nationality, ship)" class="stat-cell">
+								<div class="stat-content">
+									<span v-if="ship.maxLevelBonus">+{{ ship.maxLevelBonus }}</span>
+									<img 
+										:src="getStatIcon(ship.maxLevelStat)" 
+										:alt="ship.maxLevelStat"
+										class="stat-icon"
+									/>
+								</div>
+							</td>
+						</tr>
+					</tbody>
+				</table>
 			</div>
 		</div>
 	</div>
@@ -595,7 +598,7 @@ export default {
 				groups[ship.nationality].push(ship);
 				return groups;
 			}, {});
-			}
+		}
 	},
 	methods: {
 		toggleValue(){
@@ -1034,7 +1037,21 @@ export default {
 				countAffiliations[element.nationality] = (countAffiliations[element.nationality] || 0) + 1;
 			})
 
-			let barsTech = {}
+			// Define the desired order of rarities
+			const rarityOrder = ["Ultra Rare", "Decisive", "Super Rare", "Priority", "Elite", "Rare", "Normal"];
+
+			// Create a new object with rarities in the desired order
+			let orderedCountRarities = {};
+			rarityOrder.forEach(rarity => {
+				if (countRarities[rarity]) {
+					orderedCountRarities[rarity] = countRarities[rarity];
+				}
+			});
+
+			// Replace the original countRarities with the ordered one
+			countRarities = orderedCountRarities;
+
+			let barsTech = {};
 			for (let j = 0; j < Object.values(countType).length; j++) {
 				if(count120[Object.keys(countType)[j]]){
 					barsTech[Object.keys(countType)[j]] = count120[Object.keys(countType)[j]]
@@ -1156,14 +1173,7 @@ export default {
 			this.chartsDataProducts = chartsData[8]
 			
 			this.types = Object.keys(chartsData[2]);
-			let array = Object.keys(chartsData[1]);
-			Array.prototype.move = function(from, to) {
-				this.splice(to, 0, this.splice(from, 1)[0]);
-				return this;
-			};
-			array.move(3,0)
-			array.move(4,0)
-			this.rarities = array;
+			this.rarities = Object.keys(chartsData[1]);
 			this.affiliations = Object.keys(chartsData[0]);
 
 			this.chartData = {
@@ -1559,6 +1569,8 @@ img {
   min-width: 175px;
 }
 .tables-container {
+  transform: translateX(-9999px);
+  opacity: 0;
   position: absolute;
   left: -9999px;
   top: -9999px;
@@ -1567,7 +1579,6 @@ img {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(700px, 1fr));
   gap: 20px;
-  grid-template-columns: repeat(auto-fill, 700px);
   justify-content: center;
 }
 h3 {
@@ -1581,13 +1592,6 @@ h3 {
   opacity: 0.7;
   cursor: not-allowed;
 }
-.stat-icon {
-  width: 40px;
-  height: 40px;
-  object-fit: contain;
-  display: block;
-  margin: 0 auto;
-}
 .toggle-link {  
   color: #ffd700;
   cursor: pointer;
@@ -1599,5 +1603,28 @@ h3 {
 .credit-text {
   font-size: 1rem;
   margin: 0.5rem 0;
+}
+.stat-cell {
+    display: flex; /* Use Flexbox for the cell */
+    align-items: center; /* Vertically center the content */
+    justify-content: center; /* Horizontally center the content */
+    text-align: center; /* Fallback for older browsers */
+}
+
+.stat-content {
+    display: flex; /* Use Flexbox for the content */
+    align-items: center; /* Vertically align the text and icon */
+    gap: 5px; /* Add some spacing between the text and icon */
+}
+
+.stat-icon {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+    vertical-align: middle; /* Fallback for older browsers */
+}
+td span {
+    display: inline-block;
+    vertical-align: middle; /* Align the text vertically with the icon */
 }
 </style>
