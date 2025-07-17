@@ -67,6 +67,21 @@ Y?^::::::::^::.:7GBGGPPP55555555555555555PPPPPPPPGGGGPPPPP55555555555555PPPPPPGG
 :.:::::::::^::.!GBGGGGPPPP5555555PPPPPPPPPPPPGGGGGGGGGGGPPPPPPPPPPPPPPPPPGGGGGGBB#G^^^!777Y!^J???75?
         -->
     <div id="app">
+        <script>
+            (function(d,t) {
+                var BASE_URL="https://app.chatwoot.com";
+                var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+                g.src=BASE_URL+"/packs/js/sdk.js";
+                g.async = true;
+                s.parentNode.insertBefore(g,s);
+                g.onload=function(){
+                window.chatwootSDK.run({
+                    websiteToken: 'HtssWob1NMNnaFG5VBCaEHxA',
+                    baseUrl: BASE_URL
+                })
+                }
+            })(document,"script");
+            </script>
         <div class="preloader">
             <div class="preloader-content">
             </div>
